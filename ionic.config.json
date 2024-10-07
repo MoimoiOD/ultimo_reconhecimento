@@ -1,0 +1,7 @@
+{
+  "name": "facial",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
