@@ -1,20 +1,15 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
   <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+    <img src="../../assets/images/digiboardLogo.png" alt="logo"/>
+    <div id="container-son">
+      <ion-button fill="outline" class="button-entry" id="inserirSenha" (click)="irParaValidacao()">Entrar</ion-button>
+      <ion-button fill="solid" class="button-register">Cadastrar</ion-button>
+      <!-- <ion-alert
+        trigger="inserirSenha"
+        header="Por favor, insira sua senha:"
+        [buttons]="enviar"
+        [inputs]="senha"
+      ></ion-alert> -->
+    </div>
   </div>
 </ion-content>

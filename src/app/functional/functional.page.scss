@@ -1,0 +1,139 @@
+#main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(35, 40, 40, 1);
+}
+
+#main-content p {
+  font-size: 23px;
+  font-weight: 700;
+  color: white;
+  font-family: Roboto-Black;
+}
+
+#menu-button {
+  display: flex;
+  justify-content: flex-end;
+  width: 100vw;
+  height: 13vh;
+}
+
+#menu-button ion-menu-button {
+  margin-right: 5%;
+  color: rgba(187, 98, 255, 1);
+}
+
+#liveView {
+  text-align: center;
+  position: relative;
+  width: 80%;
+  height: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Alinha o conteúdo verticalmente ao centro */
+  border: 1px solid white;
+}
+
+#webcam {
+  width: 100%; /* Garante que o vídeo ocupe toda a largura da viewport */
+  height: 100%; /* Garante que o vídeo ocupe toda a altura da viewport */
+  object-fit: cover; /* Faz com que o vídeo preencha o espaço sem distorção */
+}
+
+// ion-button {
+//   position: relative;
+//   z-index: 10; /* Garante que o botão fique acima de outros elementos */
+// }
+
+@font-face {
+  font-family: Roboto-Black;
+  src: url("../../assets/fonts/Roboto-Black.ttf");
+}
+
+#container-menu-lateral, #end-menu-lateral, #start-menu-lateral {
+    display: flex;
+    flex-direction: column;
+}
+
+#container-menu-lateral {
+    height: 100%;
+    justify-content: space-between;
+}
+
+#end-menu-lateral, #start-menu-lateral {
+    justify-content: center;
+    align-items: center;
+}
+
+#start-menu-lateral {
+    height: 40vh;
+}
+
+#start-menu-lateral img {
+    width: 120px;
+    height: 120px;
+}
+
+#end-menu-lateral {
+    margin: 10px;
+}
+
+#start-menu-lateral ion-button {
+    padding: 10px;
+    width: 50vw;
+}
+
+#end-menu-lateral ion-button {
+    padding: 10px;
+    width: 50vw;
+}
+
+/* face-detection.component.css */
+// body {
+//   font-family: roboto;
+//   margin: 2em;
+//   color: #3d3d3d;
+//   --mdc-theme-primary: #007f8b;
+//   --mdc-theme-on-primary: #f1f3f4;
+// }
+
+// h1 {
+//   color: #007f8b;
+// }
+
+// h2 {
+//   clear: both;
+// }
+
+// .videoView,
+// .detectOnClick {
+//   position: relative;
+//   float: left;
+//   width: 48%;
+//   margin: 2% 1%;
+//   cursor: pointer;
+// }
+
+// .detectOnClick img {
+//   width: 100%;
+// }
+
+// .highlighter {
+//   background: rgba(0, 255, 0, 0.25);
+//   border: 1px dashed #fff;
+//   z-index: 1;
+//   position: absolute;
+// }
+
+// .key-point {
+//   position: absolute;
+//   z-index: 1;
+//   width: 3px;
+//   height: 3px;
+//   background-color: #ff0000;
+//   border-radius: 50%;
+//   display: block;
+// }

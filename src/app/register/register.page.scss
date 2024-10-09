@@ -1,0 +1,55 @@
+#main-register {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#back-register {
+    flex-grow: 1;
+}
+
+#forms-register {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 15;
+}
+
+#cadastrar {
+    font-family: Roboto-Black;
+    font-size: 23px;
+    color: rgba(53, 53, 53, 1);
+}
+
+#nome_completo {
+    font-family: Roboto-Black;
+    color: rgba(53, 53, 53, 1);
+    align-self: flex-start;
+    margin-left: 10%;
+    font-size: 14px;
+}
+
+ion-input {
+    width: 80vw;
+    align-self: flex-start;
+    margin-left: 10%;
+}
+
+#face-register {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 4;
+}
+
+#face-register ion-button {
+    height: 10vh;
+    --background: rgba(187, 98, 255, 1);
+    font-family: Roboto-Black;
+}
+
+@font-face {
+    font-family: Roboto-Black;
+    src: url("../../assets/fonts/Roboto-Black.ttf");
+  }

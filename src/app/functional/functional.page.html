@@ -1,0 +1,45 @@
+<ion-content [fullscreen]="true">
+  <div class="ion-page" id="main-content">
+    <ion-buttons slot="end" id="menu-button">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <div id="liveView" class="videoView">
+      <video id="webcam" autoplay playsinline></video>
+    </div>
+    <p id="message">APROXIME SEU ROSTO</p>
+  </div>
+</ion-content>
+
+<ion-alert
+  [isOpen]="isAlertOpen"
+  header="Acesso Liberado"
+  message="Bem vindo, {{ nomeValidacao }}!"
+  (didDismiss)="setOpen(false)"
+></ion-alert>
+
+<ion-menu side="end" contentId="main-content" id="menu-lateral">
+  <div id="container-menu-lateral">
+    <div id="start-menu-lateral">
+      <img src="../../assets/images/digiboardLogo.png" alt="logo"/>
+      <ion-button fill="solid" id="button-entry">Entrar</ion-button>
+      <ion-button fill="solid" id="button-register" (click)="irParaRegistro()">Cadastrar</ion-button>
+    </div>
+    <div id="end-menu-lateral">
+      <ion-button fill="solid" id="button-register" (click)="sairParaHome()">Sair</ion-button>
+    </div>
+  </div>
+</ion-menu>
+
+<!-- face-detection.component.html -->
+
+<!-- <div id="liveView" class="videoView">
+  <button
+    id="webcamButton"
+    class="mdc-button mdc-button--raised"
+    (click)="enableCam()"
+  >
+    <span class="mdc-button__ripple"></span>
+    <span class="mdc-button__label">HABILITAR WEBCAM</span>
+  </button>
+  <video id="webcam" autoplay playsinline></video>
+</div> -->
