@@ -6,10 +6,12 @@ import { FaceDetector, FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-
 import { PhotoService } from './services/photo.service';
 import { StateService } from '../register/services/register-state.service';
 import { CapturePhotoService } from './services/capture-photo.service';
+import { FacePositionService } from './services/face-position.service';
 
 interface teste2 {
   nome: string;
   match: boolean;
+
 }
 
 @Component({
@@ -19,7 +21,6 @@ interface teste2 {
 })
 export class FunctionalPage implements OnInit {
   private faceDetector!: FaceDetector | null; //Inicializa o FaceDetector
-  private faceLandmarker!: FaceLandmarker;
 
   private runningMode: string = "IMAGE"; // Modo de otimização da imagem
   private stream!: MediaStream; // Stream do video
@@ -39,23 +40,17 @@ export class FunctionalPage implements OnInit {
 
   isAlertOpen: boolean = false;  // Abre a janela de alerta
 
-  private stepIndex: number = 0;
-  private photos: Blob[] = [];
-
-  capturedPhotos: { diagonalRight: boolean, diagonalLeft: boolean, frontClose: boolean, frontFar: boolean } = {
-    diagonalRight: false,
-    diagonalLeft: true,
-    frontClose: true,
-    frontFar: true
-  };
-
+  faceLandmarker!: FaceLandmarker;
+  wasmUrl: string = "../assets/files";
+  modelAssetPath: string = "../assets/models/face_landmarker.task";
 
   constructor(
     private router: Router, //  Instancia o Router
     private menu: MenuController, //  Instancia o MenuController
     private photoService: PhotoService, // Instancia a api de envio das fotos
     private stateService: StateService,  //  Instancia o serviço de estado
-    private capturePhotoService: CapturePhotoService // Instancia o arquivo de captura de imagem
+    private capturePhotoService: CapturePhotoService, // Instancia o arquivo de captura de imagem
+    private facePositionService: FacePositionService
   ) { }
 
   async ngOnInit() {
@@ -86,6 +81,8 @@ export class FunctionalPage implements OnInit {
     this.isDetection = true // Ativa a detecção de face
     this.apiConfirm = true //  Ativa a API de confirmação
 
+    console.log('Configurações Iniciais Finalizadas!')
+
     this.initializeFaceDetector();
   }
 
@@ -114,16 +111,9 @@ export class FunctionalPage implements OnInit {
       });
 
     console.log('Câmera inicializada com sucesso!')
-    if (this.faceDetector && this.modoCadastro === false) {
+    if (this.faceDetector) {
       const interval = setInterval(() => {
-        console.log('Modo de validação!')
         this.predictWebcam();
-        clearInterval(interval)
-      }, 4000)
-    } else {
-      const interval = setInterval(() => {
-        console.log('Modo de cadastro!')
-        this.predictRegisterFaceWebcam();
         clearInterval(interval)
       }, 4000)
     }
@@ -165,17 +155,28 @@ export class FunctionalPage implements OnInit {
 
   }
 
+  async initializeFaceLandmarker() {
+    this.faceLandmarker = await FaceLandmarker.createFromOptions(
+      await FilesetResolver.forVisionTasks(this.wasmUrl),
+      {
+        baseOptions: { modelAssetPath: this.modelAssetPath, delegate: "GPU" },
+        outputFaceBlendshapes: true,
+        runningMode: "VIDEO",
+      }
+    );
+    console.log('FaceLandMarker iniciada com sucesso!');
+  }
+
   predictWebcam() {
+    console.log('Iniciando predição!')
     if (!this.faceDetector || !this.faceDetectorReady) {
       console.warn("FaceDetector ainda não está pronto.");
       return;
     }
-
     if (!this.isDetection) {
       console.log("Detecção interrompida.");
       return;
     }
-
     if (this.runningMode === "IMAGE") {
       this.runningMode = "VIDEO";
       this.faceDetector!.setOptions({ runningMode: "VIDEO" });
@@ -186,30 +187,13 @@ export class FunctionalPage implements OnInit {
     if (this.video.videoWidth && this.video.videoHeight) {
       const detections = this.faceDetector!.detectForVideo(this.video, startTimeMs).detections;
       if (detections.length > 0 && this.apiConfirm) {
-        this.apiConfirm = false
-        const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
-        this.photoService.sendPhoto(photoBlob).subscribe({
-          next: (response: teste2) => {
-            if (response.match === true) {
-              this.nomeValidacao = response.nome
-              this.setOpen(response.match)
-            } else {
-              this.setOpen(response.match)
-            }
-          },
-          error: (error) => {
-            this.apiConfirm = true;
-            this.isDetection = true;
-            if (this.faceDetector && this.faceDetectorReady) {
-              this.predictWebcam();
-            }
-            console.log('Erro ao enviar a foto:', error);
-          }
-        });
-
-        console.log('Rosto detectado!')
-        for (let detection of detections) {
-          console.log(Math.round(detection.categories[0].score * 100))
+        if (this.modoCadastro === false) {
+          console.log('Entrei no modo validação!')
+          this.apiConfirm = false
+          this.validation(detections)
+        } else {
+          console.log('Entrei no modo registro!')
+          this.validationMultiplePhotos(detections)
         }
       } else {
         console.log('Nenhum rosto detectado ou detecção parada.');
@@ -221,82 +205,79 @@ export class FunctionalPage implements OnInit {
     }
   }
 
-  predictRegisterFaceWebcam() {
+  validation(detections: any) {
+    const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
+    this.photoService.sendPhoto(photoBlob).subscribe({
+      next: (response: teste2) => {
+        if (response.match === true) {
+          this.nomeValidacao = response.nome
+          this.setOpen(response.match)
+        } else {
+          this.setOpen(response.match)
+        }
+      },
+      error: (error) => {
+        this.apiConfirm = true;
+        this.isDetection = true;
+        if (this.faceDetector && this.faceDetectorReady) {
+          this.predictWebcam();
+        }
+        console.log('Erro ao enviar a foto:', error);
+      }
+    });
 
+    console.log('Rosto detectado!')
+    for (let detection of detections) {
+      console.log(Math.round(detection.categories[0].score * 100))
+      // this.animationFrameId = window.requestAnimationFrame(this.predictWebcam.bind(this))
+    }
+  }
+
+  validationMultiplePhotos(detections: any) {
+    this.initializeFaceLandmarker()
+
+    const photos = {
+      rigth: { description: 'Rosto na diagonal direita', angle: 'rightDiagonal', confirm: false },
+      left: { description: 'Rosto na diagonal esquerda', angle: 'leftDiagonal', confirm: true },
+      close: { description: 'Rosto de frente perto', angle: 'closeFront', confirm: true },
+      far: { description: 'Rosto de frente longe', angle: 'farFront', confirm: true }
+    }
+
+    const photosBlob: Blob[] = [];
+    let photoIndex = 0;
     let lastVideoTime = -1;
     let results: any = undefined;
-
-    if (!this.faceDetector || !this.faceDetectorReady) {
-      console.warn("FaceDetector ainda não está pronto.");
-      return;
-    }
-
-    if (!this.isDetection) {
-      console.log("Detecção interrompida.");
-      return;
-    }
-
-    if (this.runningMode === "IMAGE") {
-      this.runningMode = "VIDEO";
-      this.faceDetector!.setOptions({ runningMode: "VIDEO" });
-    }
 
     if (lastVideoTime !== this.video.currentTime) {
       lastVideoTime = this.video.currentTime;
       results = this.faceLandmarker.detectForVideo(this.video, Date.now());
     }
 
-    let startTimeMs = performance.now();
-
-    if (this.video.videoWidth && this.video.videoHeight) {
-      const detections = this.faceDetector!.detectForVideo(this.video, startTimeMs).detections;
-      if (detections.length > 0 && this.apiConfirm) {
-        this.apiConfirm = false
-        const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
-        this.photos.push(photoBlob)
-        console.log(`Foto ${this.stepIndex + 1} capturada!`);
-
-        if (this.stepIndex < 3) {
-          this.stepIndex++;
+    if (results && results.faceLandmarks) {
+      for (const landmarks of results.faceLandmarks) {
+        if (!photos.rigth.confirm && this.facePositionService.identifyFacePosition(landmarks, 'rightDiagonal', { min: 140, max: 150 })) {
+          console.log('Capturando  foto do lado direito!');
+          const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
+          photosBlob.push(photoBlob)
+          photos.rigth.confirm = true;
+          photos.left.confirm = false;
           this.setOpen(true)
         } else {
-          this.photoService.registerFace(this.nomeCompleto, this.photos).subscribe({
-            next: (response: teste2) => {
-              if (response.match === true) {
-                this.nomeValidacao = response.nome
-                this.setOpen(response.match)
-              } else {
-                this.setOpen(response.match)
-              }
-            },
-            error: (error) => {
-              this.apiConfirm = true;
-              this.isDetection = true;
-              if (this.faceDetector && this.faceDetectorReady) {
-                this.predictRegisterFaceWebcam();
-              }
-              console.log('Erro ao enviar a foto:', error);
-            }
-          });
+          console.log('Registro finalizado!')
+          console.log(photosBlob)
+          this.setOpen(true)
+          break
         }
-        console.log('Rosto detectado!')
-        for (let detection of detections) {
-          console.log(Math.round(detection.categories[0].score * 100))
-        }
-      } else {
-        console.log('Nenhum rosto detectado ou detecção parada.');
-        this.isDetection = false
       }
-    }
-    if (this.isDetection) {
-      this.animationFrameId = window.requestAnimationFrame(this.predictRegisterFaceWebcam.bind(this));
     }
   }
 
-  //---------------------- Setar informações para interface com o usuário ---------------------------
+  //------------------------------- Setar informações para interface com o usuário ---------------
 
   async setOpen(isOpen: boolean) {
     this.isAlertOpen = isOpen;
+
+    console.log('Mostrei o alerta!')
 
     if (!isOpen) {
       // Reinicia a detecção quando o alerta é fechado
@@ -304,14 +285,9 @@ export class FunctionalPage implements OnInit {
       this.apiConfirm = true;
 
       // Reinicia a detecção chamando predictWebcam novamente
-      if (this.faceDetector && this.faceDetectorReady && this.modoCadastro === false) {
+      if (this.faceDetector && this.faceDetectorReady) {
         const predicao = setInterval(() => {
           this.predictWebcam();
-          clearInterval(predicao)
-        }, 6000)
-      } else if (this.faceDetector && this.faceDetectorReady && this.modoCadastro === true) {
-        const predicao = setInterval(() => {
-          this.predictRegisterFaceWebcam();
           clearInterval(predicao)
         }, 6000)
       }

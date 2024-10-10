@@ -7,11 +7,6 @@ export class FacePositionService {
 
   constructor() { }
 
-  isCorrectPosition(facePosition: string, stepIndex: number): boolean {
-    const expectedPositions = ['De Frente Perto', 'De Frente Longe', 'Diagonal Esquerda', 'Diagonal Direita'];
-    return facePosition === expectedPositions[stepIndex];
-  }
-
   identifyFacePosition(landmarks: any, direction: string, angleRange: { min: number, max: number }): boolean {
     // Supondo que "detections" contenha as landmarks do rosto
     const leftEye = landmarks[263];  // Ponto do olho esquerdo
@@ -35,9 +30,9 @@ export class FacePositionService {
       Math.pow(leftEye.x - rightEye.x, 2) + Math.pow(leftEye.y - rightEye.y, 2)
     );
 
-    console.log(`Ângulo calculado no plano XZ: ${angleInDegrees.toFixed(2)} graus, direção: ${'direction'}`);
+    console.log(`Ângulo calculado no plano XZ: ${angleInDegrees.toFixed(2)} graus, direção: ${direction}`);
 
-    if (direction === 'Diagonal Direita') {
+    if (direction === 'rightDiagonal') {
       // Verifica se a inclinação está para a direita no intervalo especificado
       if (angleInDegrees >= angleRange.min && angleInDegrees <= angleRange.max) {
         console.log(`Inclinação correta para a direita! Dentro do range: ${angleRange.min}° a ${angleRange.max}°`);
@@ -46,7 +41,7 @@ export class FacePositionService {
         // console.log(`Inclinação incorreta para a direita! Fora do range: ${angleRange.min}° a ${angleRange.max}°`);
         return false;
       }
-    } else if (direction === 'Diagonal Esquerda') {
+    } else if (direction === 'leftDiagonal') {
       // Verifica se a inclinação está para a esquerda (ajustar os ângulos)
       if (angleInDegrees >= angleRange.min && angleInDegrees <= angleRange.max) {
         console.log(`Inclinação correta para a esquerda! Dentro do range: ${angleRange.min}° a ${angleRange.max}°`);
@@ -55,10 +50,10 @@ export class FacePositionService {
         // console.log(`Inclinação incorreta para a esquerda! Fora do range: ${angleRange.min}° a ${angleRange.max}°`);
         return false;
       }
-    } else if (direction === 'De Frente Perto') {
+    } else if (direction === 'closeFront') {
       console.log('Rosto próximo capturado!');
       return faceWidth < 0.3; // Limite para rosto próximo
-    } else if (direction === 'De Frente Longe') {
+    } else if (direction === 'farFront') {
       console.log('Rosto distante capturado!');
       return faceWidth < 0.15; // Limite para rosto distante
     }
