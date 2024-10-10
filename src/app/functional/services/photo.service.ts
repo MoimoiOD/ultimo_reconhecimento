@@ -21,6 +21,7 @@ interface teste {
 })
 export class PhotoService {
     private apiUrl = 'http://147.1.6.53:8000/face/reconhecimento_facial';// Substitua pelo seu endpoint
+    private apiUrlCadastro = 'http://147.1.6.53:8000/face/cadastro'
 
   constructor() {}
 
@@ -35,4 +36,22 @@ export class PhotoService {
       return bodyObject
     }))
   }
+
+  registerFace(nome: string, photos: Blob[]): Observable<any> {
+    const formData = new FormData();
+    console.log(this.apiUrlCadastro)
+    formData.append('name', nome)
+    photos.forEach((photo, index) => {
+      formData.append('files', photo, `photo${index + 1}.png`)
+    })
+    // formData.append('file', photos, 'photo.png');
+
+    return from(fetch(this.apiUrlCadastro, { method: 'POST', body: formData }).then(async (response: Response) => {
+      // const body: teste = await response.json()
+      // const bodyObject = { nome: body.data.detail[0].nome, match: body.data.detail[0].match } 
+      // return bodyObject
+      console.log(response.json())
+    }))
+  }
+
 }
