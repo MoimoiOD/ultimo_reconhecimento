@@ -27,7 +27,6 @@ export class PhotoService {
 
   sendPhoto(photo: Blob): Observable<any> {
     const formData = new FormData();
-    console.log(this.apiUrl)
     formData.append('file', photo, 'photo.png');
 
     return from(fetch(this.apiUrl, { method: 'POST', body: formData }).then(async (response: Response) => {
