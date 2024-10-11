@@ -35,7 +35,7 @@ export class FunctionalPage implements OnInit {
   private modoCadastro: boolean = false // Confirma a camera para usar o modo de cadastro
   nomeValidacao: string = 'Anônimo'; // Nome da pessoa que esta validando
 
-  private isDetection: boolean = true;  // Valida se a detecção de face está ativada
+  private isDetection: boolean = false;  // Valida se a detecção de face está ativada
   private apiConfirm: boolean = true; // Valida se a API confirma a detecção
 
   isAlertOpen: boolean = false;  // Abre a janela de alerta
@@ -82,10 +82,10 @@ export class FunctionalPage implements OnInit {
       this.modoCadastro = modoCadastro
       console.log(`Modo de cadastro: ${this.modoCadastro}`)
     })
-    this.isDetection = true // Ativa a detecção de face
-    console.log(`Detecção ativada (isDetection): ${this.isDetection}`)
-    this.apiConfirm = true //  Ativa a API de confirmação
-    console.log(`API liberada (apiConfirm): ${this.apiConfirm}`)
+    // this.isDetection = true // Ativa a detecção de face
+    // console.log(`Detecção ativada (isDetection): ${this.isDetection}`)
+    // this.apiConfirm = true //  Ativa a API de confirmação
+    // console.log(`API liberada (apiConfirm): ${this.apiConfirm}`)
 
     console.log('Configurações Iniciais Finalizadas!')
 
@@ -119,11 +119,10 @@ export class FunctionalPage implements OnInit {
 
     console.log('Câmera inicializada com sucesso!')
     if (this.faceDetector) {
-      const interval = setInterval(() => {
+      setTimeout(() => {
         console.log('Iniciado a predição de 4000 segundos')
         console.log('Primeira predição chamada!')
-        this.predictWebcam();
-        clearInterval(interval)
+        this.runSequence();
       }, 4000)
     }
   }
@@ -184,66 +183,62 @@ export class FunctionalPage implements OnInit {
       console.warn("FaceDetector ainda não está pronto.");
       return;
     }
-    if (!this.isDetection) {
-      console.log("Detecção interrompida.");
-      return;
-    }
-    if (this.runningMode === "IMAGE") {
-      this.runningMode = "VIDEO";
-      this.faceDetector!.setOptions({ runningMode: "VIDEO" });
-    }
-
-    let startTimeMs = performance.now();
-
-    if (this.video.videoWidth && this.video.videoHeight) {
-      const detections = this.faceDetector!.detectForVideo(this.video, startTimeMs).detections;
-      console.log(`isDetection para entrar na condição para validar ou registrar: ${this.isDetection}`)
-      if (detections.length > 0 && this.isDetection) {
-        console.log(`Modo cadastro: ${this.modoCadastro}`)
-        if (this.modoCadastro === false) {
-          this.isDetection = false
-          console.log(`A API fechou a detecção para processar a validação (isDetection): ${this.isDetection}`)
-          this.validation(detections)
+    // if (!this.isDetection) {
+    //   console.log("Detecção interrompida.");
+    //   return;
+    // }
+    // if (this.runningMode === "IMAGE") {
+    //   this.runningMode = "VIDEO";
+    //   this.faceDetector!.setOptions({ runningMode: "VIDEO" });
+    // }
+    return new Promise((resolve) => {
+      let startTimeMs = performance.now();
+      if (this.video.videoWidth && this.video.videoHeight) {
+        const detections = this.faceDetector!.detectForVideo(this.video, startTimeMs).detections;
+        if (detections.length > 0) {
+          console.log('Rosto detectado!')
+          this.isDetection = true
         } else {
-          this.validationMultiplePhotos(detections)
+          console.log('Rosto não detectado!')
+          this.isDetection = false
         }
-      } else {
-        this.isDetection = false
-      }
-      console.log(`Está permitido a detecção com a animação de frame? ${this.isDetection}`)
+        resolve()
+        // console.log(`Está permitido a detecção com a animação de frame? ${this.isDetection}`)
 
-      // if (this.isDetection) {
-      //   this.animationFrameId = window.requestAnimationFrame(this.predictWebcam.bind(this));
-      // }
-    }
+        // if (this.isDetection) {
+        //   this.animationFrameId = window.requestAnimationFrame(this.predictWebcam.bind(this));
+        // }
+      }
+    })
   }
 
-  validation(detections: any) {
+  async validation(): Promise<void> {
     const self = this
     console.log(`Iniciando o processo de validação/autenticação!`)
-    const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
-    this.photoService.sendPhoto(photoBlob).subscribe({
-      next: (response: teste2) => {
-        console.log(`Foto enviada com sucesso para a API!`)
-        self.isDetection = true
-        console.log(`Detecção permitida pela API (isDetection): ${this.isDetection}`)
-        if (response.match === true) {
-          this.nomeValidacao = response.nome
-          console.log('Validado com sucesso!')
-          console.log(`Nome da pessoa que validou: ${this.nomeValidacao}`)
-          this.setOpen(response.match)
-        } else {
-          console.log('Verificação inválida!')
-          this.setOpen(response.match)
+
+    return new Promise((resolve) => {
+      const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
+      this.photoService.sendPhoto(photoBlob).subscribe({
+        next: (response: teste2) => {
+          console.log(`Foto enviada com sucesso para a API!`)
+          self.isDetection = true
+          console.log(`Detecção permitida pela API (isDetection): ${this.isDetection}`)
+          if (response.match === true) {
+            this.nomeValidacao = response.nome
+            console.log('Validado com sucesso!')
+            console.log(`Nome da pessoa que validou: ${this.nomeValidacao}`)
+            resolve()
+          } else {
+            console.log('Verificação inválida!')
+            resolve()
+          }
+        },
+        error: (error) => {
+          console.log('Erro ao enviar a foto para API:', error);
+          resolve()
         }
-      },
-      error: (error) => {
-        console.log('Erro ao enviar a foto para API:', error);
-        this.setOpen(false)
-      }
-    });
-
-
+      });
+    })
   }
 
   validationMultiplePhotos(detections: any) {
@@ -284,46 +279,44 @@ export class FunctionalPage implements OnInit {
 
   //------------------------------- Setar informações para interface com o usuário -------------------------------
 
-  async setOpen(isOpen: boolean) {
-    this.isAlertOpen = isOpen;
+  async setOpen(isOpen: boolean): Promise<void> {
 
-    console.log(`Valor de isOpen: ${isOpen}`)
+    return new Promise((resolve) => {
+      this.isAlertOpen = isOpen;
 
-    if (!isOpen) {
-      // Reinicia a detecção quando o alerta é fechado
-      console.log('Mostrei o alerta de que houve algum erro!')
-      // Reinicia a detecção chamando predictWebcam novamente
-      if (this.faceDetector && this.faceDetectorReady && !this.isDetection) {
-        this.isAlertOpen = true;
+      console.log(`Valor de isOpen: ${isOpen}`)
+
+      console.log(this.faceDetector)
+      console.log(this.faceDetectorReady)
+      console.log(this.isDetection)
+      if (this.faceDetector && this.faceDetectorReady && this.isDetection) {
+        this.isAlertOpen = false;
+        console.log('Cheguei aqui 1')
         console.log(`Ativando o alerta: ${this.isAlertOpen}`)
-        const predicao = setTimeout(() => {
+        setTimeout(() => {
           if (!this.isDetection) {
             this.isAlertOpen = false;
             console.log(`Fechando o alerta: ${this.isAlertOpen}`)
             this.isDetection = true;
             console.log(`Permitindo uma nova detecção, pois o alert já fechou!`)
+            resolve()
           }
         }, 6000);
       }
-      // console.log('Segunda predição chamada!')
-      // this.predictWebcam();
-    } else {
-      console.log('Mostrei o alerta autorizando a entrada!')
-      const alertTime = setTimeout(() => {
-        console.log('Fechei o alerta de autorizado!')
-        this.isAlertOpen = false;
-        // this.setOpen(false); // Chama setOpen para reiniciar a detecção
-        // clearInterval(alertTime);
-      }, 5000);
-    }
+      resolve()
+    })
+
   }
 
   async runSequence() {
     while (true) {
+      await this.predictWebcam()
+      await this.validation()
+      await this.setOpen(true)
 
+      console.log('Todos os métodos concluídos. Reiniciando a sequência...\n');
+      await this.delay(4000);
     }
-    console.log('Todos os métodos concluídos. Reiniciando a sequência...\n');
-    await this.delay(2000);
 
   }
 
