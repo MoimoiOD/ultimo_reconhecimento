@@ -220,9 +220,6 @@ export class FunctionalPage implements OnInit {
       const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
       this.photoService.sendPhoto(photoBlob).subscribe({
         next: (response: teste2) => {
-          console.log(`Foto enviada com sucesso para a API!`)
-          self.isDetection = true
-          console.log(`Detecção permitida pela API (isDetection): ${this.isDetection}`)
           if (response.match === true) {
             this.nomeValidacao = response.nome
             console.log('Validado com sucesso!')
@@ -266,11 +263,11 @@ export class FunctionalPage implements OnInit {
           photosBlob.push(photoBlob)
           photos.rigth.confirm = true;
           photos.left.confirm = false;
-          this.setOpen(true)
+          this.setOpen()
         } else {
           console.log('Registro finalizado!')
           console.log(photosBlob)
-          this.setOpen(true)
+          this.setOpen()
           break
         }
       }
@@ -279,40 +276,27 @@ export class FunctionalPage implements OnInit {
 
   //------------------------------- Setar informações para interface com o usuário -------------------------------
 
-  async setOpen(isOpen: boolean): Promise<void> {
-
+  async setOpen(): Promise<void> {
     return new Promise((resolve) => {
-      this.isAlertOpen = isOpen;
-
-      console.log(`Valor de isOpen: ${isOpen}`)
-
-      console.log(this.faceDetector)
-      console.log(this.faceDetectorReady)
-      console.log(this.isDetection)
-      if (this.faceDetector && this.faceDetectorReady && this.isDetection) {
-        this.isAlertOpen = false;
-        console.log('Cheguei aqui 1')
-        console.log(`Ativando o alerta: ${this.isAlertOpen}`)
-        setTimeout(() => {
-          if (!this.isDetection) {
-            this.isAlertOpen = false;
-            console.log(`Fechando o alerta: ${this.isAlertOpen}`)
-            this.isDetection = true;
-            console.log(`Permitindo uma nova detecção, pois o alert já fechou!`)
-            resolve()
-          }
-        }, 6000);
-      }
+      this.isAlertOpen = true;
       resolve()
     })
+  }
 
+  async setClose(): Promise<void> {
+    return new Promise((resolve) => {
+      this.isAlertOpen = false;
+      resolve()
+    })
   }
 
   async runSequence() {
     while (true) {
       await this.predictWebcam()
       await this.validation()
-      await this.setOpen(true)
+      await this.setOpen()
+      await this.delay(4000);
+      await this.setClose()
 
       console.log('Todos os métodos concluídos. Reiniciando a sequência...\n');
       await this.delay(4000);
