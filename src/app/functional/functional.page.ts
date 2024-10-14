@@ -22,7 +22,6 @@ interface teste2 {
 export class FunctionalPage implements OnInit {
   private faceDetector!: FaceDetector | null; //Inicializa o FaceDetector
 
-  private runningMode: string = "IMAGE"; // Modo de otimização da imagem
   private stream!: MediaStream; // Stream do video
   private faceDetectorReady: boolean = false; // Valida se a inicialização foi concluida
 
@@ -33,10 +32,10 @@ export class FunctionalPage implements OnInit {
 
   private nomeCompleto: string = '' // Nome completo do cadastro
   private modoCadastro: boolean = false // Confirma a camera para usar o modo de cadastro
-  nomeValidacao: string = 'Anônimo'; // Nome da pessoa que esta validando
+
+  labels = { header: '', context: '' }
 
   private isDetection: boolean = false;  // Valida se a detecção de face está ativada
-  private apiConfirm: boolean = true; // Valida se a API confirma a detecção
 
   isAlertOpen: boolean = false;  // Abre a janela de alerta
 
@@ -44,10 +43,18 @@ export class FunctionalPage implements OnInit {
   wasmUrl: string = "../assets/files";
   modelAssetPath: string = "../assets/models/face_landmarker.task";
 
+  private isPositionFound: boolean = false;
+
+  photos = {
+    rigth: { description: 'Rosto na diagonal direita', position: 'rightDiagonal', angle: { min: 140, max: 150 }, confirm: false },
+    left: { description: 'Rosto na diagonal esquerda', position: 'leftDiagonal', angle: { min: 200, max: 210 }, confirm: true },
+    close: { description: 'Rosto de frente perto', position: 'closeFront', angle: { min: 0, max: 0 }, confirm: true },
+    far: { description: 'Rosto de frente longe', position: 'farFront', angle: { min: 0, max: 0 }, confirm: true }
+  }
+
   constructor(
     private router: Router, //  Instancia o Router
     private menu: MenuController, //  Instancia o MenuController
-    private alert: AlertController,
     private photoService: PhotoService, // Instancia a api de envio das fotos
     private stateService: StateService,  //  Instancia o serviço de estado
     private capturePhotoService: CapturePhotoService, // Instancia o arquivo de captura de imagem
@@ -82,10 +89,6 @@ export class FunctionalPage implements OnInit {
       this.modoCadastro = modoCadastro
       console.log(`Modo de cadastro: ${this.modoCadastro}`)
     })
-    // this.isDetection = true // Ativa a detecção de face
-    // console.log(`Detecção ativada (isDetection): ${this.isDetection}`)
-    // this.apiConfirm = true //  Ativa a API de confirmação
-    // console.log(`API liberada (apiConfirm): ${this.apiConfirm}`)
 
     console.log('Configurações Iniciais Finalizadas!')
 
@@ -123,7 +126,7 @@ export class FunctionalPage implements OnInit {
         console.log('Iniciado a predição de 4000 segundos')
         console.log('Primeira predição chamada!')
         this.runSequence();
-      }, 4000)
+      }, 2000)
     }
   }
 
@@ -183,14 +186,6 @@ export class FunctionalPage implements OnInit {
       console.warn("FaceDetector ainda não está pronto.");
       return;
     }
-    // if (!this.isDetection) {
-    //   console.log("Detecção interrompida.");
-    //   return;
-    // }
-    // if (this.runningMode === "IMAGE") {
-    //   this.runningMode = "VIDEO";
-    //   this.faceDetector!.setOptions({ runningMode: "VIDEO" });
-    // }
     return new Promise((resolve) => {
       let startTimeMs = performance.now();
       if (this.video.videoWidth && this.video.videoHeight) {
@@ -221,16 +216,15 @@ export class FunctionalPage implements OnInit {
       this.photoService.sendPhoto(photoBlob).subscribe({
         next: (response: teste2) => {
           if (response.match === true) {
-            this.nomeValidacao = response.nome
-            console.log('Validado com sucesso!')
-            console.log(`Nome da pessoa que validou: ${this.nomeValidacao}`)
+            this.labels = { header: `Acesso permitido`, context: `Bem-vindo, ${response.nome}!` }
             resolve()
           } else {
-            console.log('Verificação inválida!')
+            this.labels = { header: `Acesso negado`, context: `Rosto não reconhecido!` }
             resolve()
           }
         },
         error: (error) => {
+          this.labels = { header: `Erro de comunicação`, context: `Falha ao enviar a foto para API.` }
           console.log('Erro ao enviar a foto para API:', error);
           resolve()
         }
@@ -238,40 +232,66 @@ export class FunctionalPage implements OnInit {
     })
   }
 
-  validationMultiplePhotos(detections: any) {
-    const photos = {
-      rigth: { description: 'Rosto na diagonal direita', angle: 'rightDiagonal', confirm: false },
-      left: { description: 'Rosto na diagonal esquerda', angle: 'leftDiagonal', confirm: true },
-      close: { description: 'Rosto de frente perto', angle: 'closeFront', confirm: true },
-      far: { description: 'Rosto de frente longe', angle: 'farFront', confirm: true }
-    }
+  async validationMultiplePhotos(): Promise<void> {
 
-    const photosBlob: Blob[] = [];
-    let lastVideoTime = -1;
-    let results: any = undefined;
+    return new Promise((resolve) => {
 
-    if (lastVideoTime !== this.video.currentTime) {
-      lastVideoTime = this.video.currentTime;
-      results = this.faceLandmarker.detectForVideo(this.video, Date.now());
-    }
+      const photosBlob: Blob[] = [];
+      let lastVideoTime = -1;
+      let results: any = undefined;
 
-    if (results && results.faceLandmarks) {
-      for (const landmarks of results.faceLandmarks) {
-        if (!photos.rigth.confirm && this.facePositionService.identifyFacePosition(landmarks, 'rightDiagonal', { min: 140, max: 150 })) {
-          console.log('Capturando  foto do lado direito!');
-          const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
-          photosBlob.push(photoBlob)
-          photos.rigth.confirm = true;
-          photos.left.confirm = false;
-          this.setOpen()
-        } else {
-          console.log('Registro finalizado!')
-          console.log(photosBlob)
-          this.setOpen()
-          break
+      if (lastVideoTime !== this.video.currentTime) {
+        lastVideoTime = this.video.currentTime;
+        results = this.faceLandmarker.detectForVideo(this.video, Date.now());
+      }
+
+      if (results && results.faceLandmarks) {
+        for (const landmarks of results.faceLandmarks) {
+          if (!this.photos.rigth.confirm && this.facePositionService.identifyFacePosition(landmarks, this.photos.rigth.position, this.photos.rigth.angle)) {
+            console.log('Capturando  foto do lado direito!');
+            const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
+            photosBlob.push(photoBlob)
+            this.photos.rigth.confirm = true;
+            this.photos.left.confirm = false;
+            this.labels = { header: 'Foto cadastrada', context:'Lado direito do rosto cadastrado!' }
+          } else if (!this.photos.left.confirm && this.facePositionService.identifyFacePosition(landmarks, this.photos.left.position, this.photos.left.angle)) {
+            console.log('Capturando  foto do lado esquerdo!');
+            const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
+            photosBlob.push(photoBlob)
+            this.photos.left.confirm = true;
+            this.photos.close.confirm = false;
+            this.labels = { header: 'Foto cadastrada', context:'Lado esquerdo do rosto cadastrado!' }
+          } else if (!this.photos.close.confirm && this.facePositionService.identifyFacePosition(landmarks, this.photos.close.position, this.photos.close.angle)) {
+            console.log('Capturando foto de frente perto!');
+            const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
+            photosBlob.push(photoBlob)
+            this.photos.close.confirm = true;
+            this.photos.far.confirm = false;
+            this.labels = { header: 'Foto cadastrada', context:'Região frontal(próxima) do rosto cadastrado!' }
+          } else if (!this.photos.far.confirm && this.facePositionService.identifyFacePosition(landmarks, this.photos.far.position, this.photos.far.angle)) {
+            console.log('Capturando foto de frente perto!');
+            const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
+            photosBlob.push(photoBlob)
+            this.photos.far.confirm = true;
+            this.labels = { header: 'Foto cadastrada', context:'Região frontal(distante) do rosto cadastrado!' }
+            this.isPositionFound = true;
+          } else if (this.isPositionFound) {
+            console.log("Todas as posições da face foram encontradas!")
+            this.photoService.registerFace(this.nomeCompleto, photosBlob).subscribe({
+              next: (response) => {
+                console.log(response)
+              },
+              error: (error) => {
+                console.log(error)
+              }
+            })
+            resolve()
+            return;
+          }
         }
       }
-    }
+      resolve()
+    })
   }
 
   //------------------------------- Setar informações para interface com o usuário -------------------------------
@@ -290,16 +310,45 @@ export class FunctionalPage implements OnInit {
     })
   }
 
+  async runInitialSequence() {
+    
+  }
+
   async runSequence() {
-    while (true) {
-      await this.predictWebcam()
-      await this.validation()
-      await this.setOpen()
-      await this.delay(4000);
-      await this.setClose()
+    while (true) {  
+      if (!this.photos.rigth.confirm) {
+        await this.validationMultiplePhotos()
+        window.requestAnimationFrame(() => { this.validationMultiplePhotos() })
+        await this.setOpen()
+        await this.delay(4000);
+        await this.setClose()
+      } else if (!this.photos.left.confirm) {
+        await this.validationMultiplePhotos()
+        window.requestAnimationFrame(() => { this.validationMultiplePhotos() })
+        await this.setOpen()
+        await this.delay(4000);
+        await this.setClose()
+      } else if (!this.photos.close.confirm) {
+        await this.validationMultiplePhotos()
+        window.requestAnimationFrame(() => { this.validationMultiplePhotos() })
+        await this.setOpen()
+        await this.delay(4000);
+        await this.setClose()
+      } else if (!this.photos.far.confirm) {
+        await this.validationMultiplePhotos()
+        window.requestAnimationFrame(() => { this.validationMultiplePhotos() })
+        await this.setOpen()
+        await this.delay(4000);
+        await this.setClose()
+      }
+      // await this.predictWebcam()
+      // await this.validation()
+      // await this.setOpen()
+      // await this.delay(4000);
+      // await this.setClose()
 
       console.log('Todos os métodos concluídos. Reiniciando a sequência...\n');
-      await this.delay(4000);
+      await this.delay(1000);
     }
 
   }
