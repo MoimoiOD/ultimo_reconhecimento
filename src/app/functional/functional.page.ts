@@ -1,7 +1,7 @@
 // face-detection.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, MenuController } from '@ionic/angular';
+import { MenuController } from '@ionic/angular';
 import { FaceDetector, FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import { PhotoService } from './services/photo.service';
 import { StateService } from '../register/services/register-state.service';
@@ -36,6 +36,9 @@ export class FunctionalPage implements OnInit {
   labels = { header: '', context: '' }
 
   private isDetection: boolean = false;  // Valida se a detecção de face está ativada
+
+  photosBlob: Blob[] = [];
+
 
   isAlertOpen: boolean = false;  // Abre a janela de alerta
 
@@ -126,7 +129,7 @@ export class FunctionalPage implements OnInit {
         console.log('Iniciado a predição de 4000 segundos')
         console.log('Primeira predição chamada!')
         this.runSequence();
-      }, 2000)
+      }, 4000)
     }
   }
 
@@ -236,7 +239,6 @@ export class FunctionalPage implements OnInit {
 
     return new Promise((resolve) => {
 
-      const photosBlob: Blob[] = [];
       let lastVideoTime = -1;
       let results: any = undefined;
 
@@ -250,43 +252,56 @@ export class FunctionalPage implements OnInit {
           if (!this.photos.rigth.confirm && this.facePositionService.identifyFacePosition(landmarks, this.photos.rigth.position, this.photos.rigth.angle)) {
             console.log('Capturando  foto do lado direito!');
             const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
-            photosBlob.push(photoBlob)
+            this.photosBlob.push(photoBlob)
             this.photos.rigth.confirm = true;
             this.photos.left.confirm = false;
-            this.labels = { header: 'Foto cadastrada', context:'Lado direito do rosto cadastrado!' }
+            this.labels = { header: 'Foto cadastrada', context: 'Lado direito do rosto cadastrado!' }
+            console.log('Cheguei no resolve')
+            resolve()
+            return;
           } else if (!this.photos.left.confirm && this.facePositionService.identifyFacePosition(landmarks, this.photos.left.position, this.photos.left.angle)) {
             console.log('Capturando  foto do lado esquerdo!');
             const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
-            photosBlob.push(photoBlob)
+            this.photosBlob.push(photoBlob)
             this.photos.left.confirm = true;
             this.photos.close.confirm = false;
-            this.labels = { header: 'Foto cadastrada', context:'Lado esquerdo do rosto cadastrado!' }
+            this.labels = { header: 'Foto cadastrada', context: 'Lado esquerdo do rosto cadastrado!' }
+            resolve()
+            return
           } else if (!this.photos.close.confirm && this.facePositionService.identifyFacePosition(landmarks, this.photos.close.position, this.photos.close.angle)) {
             console.log('Capturando foto de frente perto!');
             const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
-            photosBlob.push(photoBlob)
+            this.photosBlob.push(photoBlob)
             this.photos.close.confirm = true;
             this.photos.far.confirm = false;
-            this.labels = { header: 'Foto cadastrada', context:'Região frontal(próxima) do rosto cadastrado!' }
+            this.labels = { header: 'Foto cadastrada', context: 'Região frontal(próxima) do rosto cadastrado!' }
+            resolve()
+            return
           } else if (!this.photos.far.confirm && this.facePositionService.identifyFacePosition(landmarks, this.photos.far.position, this.photos.far.angle)) {
             console.log('Capturando foto de frente perto!');
             const photoBlob = this.capturePhotoService.capturePhoto(this.canvas, this.video, this.ctx!)
-            photosBlob.push(photoBlob)
+            this.photosBlob.push(photoBlob)
             this.photos.far.confirm = true;
-            this.labels = { header: 'Foto cadastrada', context:'Região frontal(distante) do rosto cadastrado!' }
+            this.labels = { header: 'Foto cadastrada', context: 'Região frontal(distante) do rosto cadastrado!' }
             this.isPositionFound = true;
+            resolve()
+            return
           } else if (this.isPositionFound) {
             console.log("Todas as posições da face foram encontradas!")
-            this.photoService.registerFace(this.nomeCompleto, photosBlob).subscribe({
+            this.photoService.registerFace(this.nomeCompleto, this.photosBlob).subscribe({
               next: (response) => {
                 console.log(response)
+                this.isPositionFound = false;
               },
               error: (error) => {
                 console.log(error)
+                this.isPositionFound = false;
               }
             })
             resolve()
             return;
+          } else {
+            window.requestAnimationFrame(() => { this.validationMultiplePhotos() })
           }
         }
       }
@@ -295,6 +310,43 @@ export class FunctionalPage implements OnInit {
   }
 
   //------------------------------- Setar informações para interface com o usuário -------------------------------
+
+  async runSequence() {
+    let show = true;
+    while (true) {
+      if (!this.photos.rigth.confirm) {
+        await this.validationMultiplePhotos()
+      } else if (!this.photos.left.confirm) {
+        await this.alert(show)
+        await this.validationMultiplePhotos()
+      } else if (!this.photos.close.confirm) {
+        await this.alert(show)
+        await this.validationMultiplePhotos()
+      } else if (!this.photos.far.confirm) {
+        await this.alert(show)
+        await this.validationMultiplePhotos()
+      } else {
+        await this.alert(show)
+        await this.validationMultiplePhotos()
+        show = false
+        if (!this.isPositionFound) {
+          this.photosBlob = []
+          break
+        }
+      }
+      console.log('Todos os métodos concluídos. Reiniciando a sequência...\n')
+      await this.delay(4000)
+    }
+    this.runSequenceValidation()
+  }
+
+  async alert(show: boolean) {
+    if(show) {
+      await this.setOpen()
+      await this.delay(4000)
+      await this.setClose()
+    }
+  }
 
   async setOpen(): Promise<void> {
     return new Promise((resolve) => {
@@ -306,55 +358,27 @@ export class FunctionalPage implements OnInit {
   async setClose(): Promise<void> {
     return new Promise((resolve) => {
       this.isAlertOpen = false;
+      this.labels = { header: '', context: '' }
       resolve()
     })
-  }
-
-  async runInitialSequence() {
-    
-  }
-
-  async runSequence() {
-    while (true) {  
-      if (!this.photos.rigth.confirm) {
-        await this.validationMultiplePhotos()
-        window.requestAnimationFrame(() => { this.validationMultiplePhotos() })
-        await this.setOpen()
-        await this.delay(4000);
-        await this.setClose()
-      } else if (!this.photos.left.confirm) {
-        await this.validationMultiplePhotos()
-        window.requestAnimationFrame(() => { this.validationMultiplePhotos() })
-        await this.setOpen()
-        await this.delay(4000);
-        await this.setClose()
-      } else if (!this.photos.close.confirm) {
-        await this.validationMultiplePhotos()
-        window.requestAnimationFrame(() => { this.validationMultiplePhotos() })
-        await this.setOpen()
-        await this.delay(4000);
-        await this.setClose()
-      } else if (!this.photos.far.confirm) {
-        await this.validationMultiplePhotos()
-        window.requestAnimationFrame(() => { this.validationMultiplePhotos() })
-        await this.setOpen()
-        await this.delay(4000);
-        await this.setClose()
-      }
-      // await this.predictWebcam()
-      // await this.validation()
-      // await this.setOpen()
-      // await this.delay(4000);
-      // await this.setClose()
-
-      console.log('Todos os métodos concluídos. Reiniciando a sequência...\n');
-      await this.delay(1000);
-    }
-
   }
 
   delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  async runSequenceValidation() {
+    while (true) {
+
+      await this.predictWebcam()
+      await this.validation()
+      await this.setOpen()
+      await this.delay(4000);
+      await this.setClose()
+
+      console.log('Todos os métodos concluídos. Reiniciando a sequência...\n')
+      await this.delay(4000)
+    }
+
+  }
 }

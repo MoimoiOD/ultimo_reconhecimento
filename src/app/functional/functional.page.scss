@@ -28,20 +28,35 @@
 #liveView {
   text-align: center;
   position: relative;
-  width: 80%;
-  height: 70%;
+  width: 90vw;
+  height: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center; /* Alinha o conteúdo verticalmente ao centro */
   border: 1px solid white;
+  overflow: hidden;
 }
 
 #webcam {
-  width: 100%; /* Garante que o vídeo ocupe toda a largura da viewport */
-  height: 100%; /* Garante que o vídeo ocupe toda a altura da viewport */
-  object-fit: cover; /* Faz com que o vídeo preencha o espaço sem distorção */
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Faz com que o vídeo preencha o espaço sem distorção */
+  border: 4px solid green;
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
 }
+
+// #webcam-canvas {
+//   border: 2px solid red;
+//   position: absolute; /* Mantém o canvas sobre o vídeo */
+//   top: 0; /* Ajusta para 0 para sobrepor ao vídeo */
+//   left: 0; /* Alinha à esquerda */
+//   width: 100%; /* Garante que o canvas tenha a mesma largura do vídeo */
+//   height: 100%; /* Garante que o canvas tenha a mesma altura do vídeo */
+//   object-fit: cover; /* Faz com que o canvas preencha o espaço sem distorção */
+// }
 
 // ion-button {
 //   position: relative;

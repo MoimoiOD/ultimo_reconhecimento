@@ -43,11 +43,21 @@ export class FacePositionService {
         return false;
       }
     } else if (direction === 'closeFront') {
-      console.log('Rosto próximo capturado!');
-      return faceWidth < 0.3;
+      if(faceWidth < 0.3) {
+        console.log('Rosto próximo capturado!');
+        return faceWidth < 0.3;
+      } else {
+        console.log('Rosto próximo não capturado!');
+        return false
+      }
     } else if (direction === 'farFront') {
-      console.log('Rosto distante capturado!');
-      return faceWidth < 0.15;
+      if(faceWidth < 0.15) {
+        console.log('Rosto distante capturado!');
+        return faceWidth < 0.15;
+      } else {
+        console.log('Rosto distante não capturado!');
+        return false
+      }
     }
     console.log('Posição indefinida!')
     return false;

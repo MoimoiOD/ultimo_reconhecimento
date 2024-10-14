@@ -43,7 +43,7 @@ export class PhotoService {
       formData.append('files', photo, `photo${index + 1}.png`)
     })
     return from(fetch(this.apiUrlCadastro, { method: 'POST', body: formData }).then(async (response: Response) => {
-      return response.json();
+      console.log(response.json())
     }))
   }
 
