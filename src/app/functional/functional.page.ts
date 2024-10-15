@@ -81,8 +81,13 @@ export class FunctionalPage implements OnInit {
     console.log('Tag vídeo capturado.')
     this.canvas = document.createElement('canvas') as HTMLCanvasElement; //   Cria o elemento do canvas
     console.log('Tag canvas criado e capturado.')
-
-    this.ctx = this.canvas.getContext('2d') //   Pega o contexto do canvas
+    this.ctx = this.canvas.getContext('2d')
+    
+    if (this.ctx) {
+      console.log('Contexto do canvas capturado');
+    } else {
+      console.error('Erro ao capturar o contexto do canvas.');
+    }
     console.log('Contexto do canvas capturado')
     this.stateService.nome$.subscribe(nomeCompleto => {
       this.nomeCompleto = nomeCompleto
@@ -128,7 +133,7 @@ export class FunctionalPage implements OnInit {
       setTimeout(() => {
         console.log('Iniciado a predição de 4000 segundos')
         console.log('Primeira predição chamada!')
-        this.runSequence();
+        this.runSequenceValidation();
       }, 4000)
     }
   }
@@ -191,6 +196,7 @@ export class FunctionalPage implements OnInit {
     }
     return new Promise((resolve) => {
       let startTimeMs = performance.now();
+
       if (this.video.videoWidth && this.video.videoHeight) {
         const detections = this.faceDetector!.detectForVideo(this.video, startTimeMs).detections;
         if (detections.length > 0) {

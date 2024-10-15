@@ -29,7 +29,7 @@
   text-align: center;
   position: relative;
   width: 90vw;
-  height: auto;
+  height: 90vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -41,22 +41,23 @@
 #webcam {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* Faz com que o vídeo preencha o espaço sem distorção */
+  object-fit: cover; /* Faz com que o vídeo preencha o espaço sem distorção */
   border: 4px solid green;
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
   -moz-transform: rotateY(180deg);
 }
 
-// #webcam-canvas {
-//   border: 2px solid red;
-//   position: absolute; /* Mantém o canvas sobre o vídeo */
-//   top: 0; /* Ajusta para 0 para sobrepor ao vídeo */
-//   left: 0; /* Alinha à esquerda */
-//   width: 100%; /* Garante que o canvas tenha a mesma largura do vídeo */
-//   height: 100%; /* Garante que o canvas tenha a mesma altura do vídeo */
-//   object-fit: cover; /* Faz com que o canvas preencha o espaço sem distorção */
+// #faceCanvas {
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   border: 2px solid red; /* Borda vermelha para visualização */
+//   pointer-events: none; /* Permite interagir com o vídeo sem interferência do canvas */
 // }
+
 
 // ion-button {
 //   position: relative;

@@ -8,6 +8,9 @@ import { FunctionalPageRoutingModule } from './functional-routing.module';
 
 import { FunctionalPage } from './functional.page';
 import { HttpClientModule } from '@angular/common/http';
+import { PhotoService } from './services/photo.service';
+import { FacePositionService } from './services/face-position.service';
+import { CapturePhotoService } from './services/capture-photo.service';
 
 @NgModule({
   imports: [
@@ -17,6 +20,11 @@ import { HttpClientModule } from '@angular/common/http';
     FunctionalPageRoutingModule,
     HttpClientModule
   ],
-  declarations: [FunctionalPage]
+  declarations: [FunctionalPage],
+  providers: [
+    PhotoService,
+    FacePositionService,
+    CapturePhotoService
+  ]
 })
 export class FunctionalPageModule {}
