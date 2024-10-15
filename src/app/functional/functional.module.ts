@@ -11,6 +11,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { PhotoService } from './services/photo.service';
 import { FacePositionService } from './services/face-position.service';
 import { CapturePhotoService } from './services/capture-photo.service';
+import { AlertService } from './services/alert.service';
+import { CameraService } from './services/camera.service';
+import { FunctionalStateService } from './services/functional-state.service';
+import { ProcessRecognitionService } from './services/process-recognition.service';
+import { StartRecognitionService } from './services/start-recognition.service';
 
 @NgModule({
   imports: [
@@ -24,7 +29,12 @@ import { CapturePhotoService } from './services/capture-photo.service';
   providers: [
     PhotoService,
     FacePositionService,
-    CapturePhotoService
+    CapturePhotoService,
+    AlertService,
+    CameraService,
+    FunctionalStateService,
+    ProcessRecognitionService,
+    StartRecognitionService
   ]
 })
 export class FunctionalPageModule {}
