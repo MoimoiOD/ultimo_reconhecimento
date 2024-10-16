@@ -35,3 +35,19 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 // @import "@ionic/angular/css/palettes/dark.system.css";
+
+ion-alert .alert-head {
+  font-family: SF-Pro-Display-Medium;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+
+@font-face {
+  font-family: SF-Pro-Display-Bold;
+  src: url(./assets/fonts/SFPRODISPLAYBOLD.OTF);
+}
+
+@font-face {
+  font-family: SF-Pro-Display-Medium;
+  src: url(./assets/fonts/SFPRODISPLAYMEDIUM.OTF);
+}

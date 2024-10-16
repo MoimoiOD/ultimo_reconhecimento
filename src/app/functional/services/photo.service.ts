@@ -40,7 +40,7 @@ export class PhotoService {
     const formData = new FormData();
     formData.append('name', nome)
     photos.forEach((photo, index) => {
-      formData.append('files', photo, `photo${index + 1}.png`)
+      formData.append('files', photo, `teste_photo${index + 1}.png`)
     })
     return from(fetch(this.apiUrlCadastro, { method: 'POST', body: formData }).then(async (response: Response) => {
       console.log(response.json())

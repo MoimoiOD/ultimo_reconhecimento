@@ -2,7 +2,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
-import { FaceDetector, FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import { PhotoService } from './services/photo.service';
 import { StateService } from '../register/services/register-state.service';
 import { CapturePhotoService } from './services/capture-photo.service';
@@ -12,6 +11,7 @@ import { StartRecognitionService } from './services/start-recognition.service';
 import { CameraService } from './services/camera.service';
 import { ProcessRecognitionService } from './services/process-recognition.service';
 import { AlertService } from './services/alert.service';
+import { FaceCaptureService } from './services/face-capture.service';
 
 @Component({
   selector: 'app-functional',
@@ -27,6 +27,7 @@ export class FunctionalPage implements OnInit {
   private cameraService: CameraService;
   private processRecognitionService: ProcessRecognitionService;
   private alertService: AlertService
+  private faceCaptureService: FaceCaptureService
 
   constructor(
     private router: Router, //  Instancia o Router
@@ -41,6 +42,7 @@ export class FunctionalPage implements OnInit {
     this.cameraService = new CameraService(this.functionalStateService)
     this.processRecognitionService = new ProcessRecognitionService(this.functionalStateService, this.capturePhotoService, this.photoService, this.facePositionService)
     this.alertService = new AlertService(this.functionalStateService)
+    this.faceCaptureService = new FaceCaptureService(this.functionalStateService, this.facePositionService, this.capturePhotoService)
   }
 
   async ngOnInit() {
@@ -75,46 +77,38 @@ export class FunctionalPage implements OnInit {
     await this.startRecognitionService.initializeFaceLandmarker();
     await this.cameraService.enableCam()
     if (this.functionalStateService.modoCadastro) {
-
+      await this.runSequence()
+      // await this.runSequenceValidation()
     } else {
       await this.runSequenceValidation()
     }
   }
 
-  ionViewWillLeave() {
+  async ionViewWillLeave() {
     this.loop = false;
     this.functionalStateService.reseteState()
-    this.stopDetection();
+    await this.stopDetection();
   }
 
   // ------------------------------- Setar informações para interface com o usuário -------------------------------
 
   async runSequence() {
-    let show = true;
-    while (true) {
-      if (!this.functionalStateService.photos.rigth.confirm) {
-        await this.processRecognitionService.validationMultiplePhotos()
-      } else if (!this.functionalStateService.photos.left.confirm) {
-        await this.alertService.alert(show)
-        await this.processRecognitionService.validationMultiplePhotos()
-      } else if (!this.functionalStateService.photos.close.confirm) {
-        await this.alertService.alert(show)
-        await this.processRecognitionService.validationMultiplePhotos()
-      } else if (!this.functionalStateService.photos.far.confirm) {
-        await this.alertService.alert(show)
-        await this.processRecognitionService.validationMultiplePhotos()
-      } else {
-        await this.alertService.alert(show)
-        await this.processRecognitionService.validationMultiplePhotos()
-        show = false
-        if (!this.functionalStateService.isPositionFound) {
-          this.functionalStateService.photosBlob = []
-          break
-        }
-      }
-      console.log('Todos os métodos concluídos. Reiniciando a sequência...\n')
-      await this.delay(4000)
-    }
+    await this.delay(6000)
+    await this.faceCaptureService.captureRigthFace()
+    await this.alertService.alert(true)
+    await this.delay(8000)
+    await this.faceCaptureService.captureLeftFace()
+    await this.alertService.alert(true)
+    await this.delay(8000)
+    await this.faceCaptureService.captureCloseFrontFace()
+    await this.alertService.alert(true)
+    await this.delay(8000)
+    await this.faceCaptureService.captureFarFrontFace()
+    await this.alertService.alert(true)
+    await this.delay(8000)
+    await this.processRecognitionService.validationMultiplePhotos()
+    await this.alertService.alert(true)
+    await this.delay(8000)
   }
 
 
@@ -142,16 +136,20 @@ export class FunctionalPage implements OnInit {
     this.router.navigate(['/home'])
   }
 
-  stopDetection() {
-    this.functionalStateService.isDetection = false
-    this.cameraService.disableCam();
-    if (this.functionalStateService.animationFrameId) {
-      cancelAnimationFrame(this.functionalStateService.animationFrameId!)
-      this.functionalStateService.animationFrameId = null
-    }
+  async stopDetection(): Promise<void> {
+    return new Promise((resolve) => {
+      this.functionalStateService.isDetection = false
+      this.cameraService.disableCam();
+      if (this.functionalStateService.animationFrameId) {
+        cancelAnimationFrame(this.functionalStateService.animationFrameId!)
+        this.functionalStateService.animationFrameId = null
+      }
+      resolve()
+    })
   }
 
   delay(ms: number): Promise<void> {
+    console.log('Delay da functional.page.ts')
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 

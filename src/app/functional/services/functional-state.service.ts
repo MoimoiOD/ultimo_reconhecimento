@@ -18,7 +18,7 @@ export class FunctionalStateService {
   private _animationFrameId: number | null = null; //Bloqueia os frames quando a camera é desativada
   private _nomeCompleto: string = '' // Nome completo do cadastro
   private _modoCadastro: boolean = false // Confirma a camera para usar o modo de cadastro
-  private _labels = { header: '', context: '' }
+  private _labels = { header: ''}
   private _isDetection: boolean = false;  // Valida se a detecção de face está ativada
   private _photosBlob: Blob[] = [];
   private _isAlertOpen: boolean = false;  // Abre a janela de alerta
@@ -28,6 +28,15 @@ export class FunctionalStateService {
     left: { description: 'Rosto na diagonal esquerda', position: 'leftDiagonal', angle: { min: 200, max: 210 }, confirm: true },
     close: { description: 'Rosto de frente perto', position: 'closeFront', angle: { min: 0, max: 0 }, confirm: true },
     far: { description: 'Rosto de frente longe', position: 'farFront', angle: { min: 0, max: 0 }, confirm: true }
+  }
+  private _textLabels = {
+    standard: `Reconhecimento Facil`,
+    entryReleased: `Entrada Liberada`,
+    entryDenied: `Entrada Negada`,
+    approachRigthFace: [`Vire o rosto para a direita`, `Mais para a direita`, `Um pouco mais para a direita`],
+    approachLeftFace:  [`Vire o rosto para a esquerda`, `Mais para a esquerda`,  `Um pouco mais para a esquerda`],
+    approachCloseFace:  [`Aproxime seu rosto`, `Um pouco mais perto`],
+    approachFarFace:  [`Afaste seu rosto`, `Um pouco mais longe`]
   }
 
   constructor() { }
@@ -145,7 +154,7 @@ export class FunctionalStateService {
     return this._labels;
   }
 
-  set labels(value: { header: string; context: string }) {
+  set labels(value: { header: string }) {
     this._labels = value;
   }
 
@@ -193,6 +202,14 @@ export class FunctionalStateService {
   set photos(value: { rigth: any; left: any; close: any; far: any }) {
     this._photos = value;
   }
+
+  get textLabels() {
+    return this._textLabels;
+  }
+
+  set textLabels(value: { standard: any, entryReleased: any, entryDenied: any, approachRigthFace: any,  approachLeftFace: any, approachCloseFace: any, approachFarFace: any }) {
+    this._textLabels = value;
+  }
   
   reseteState() {
     this._faceDetector = null;
@@ -207,7 +224,7 @@ export class FunctionalStateService {
     this._animationFrameId = null;
     this._nomeCompleto = '';
     this._modoCadastro = false;
-    this._labels = { header: '', context: '' };
+    this._labels = { header: '' };
     this._isDetection = false;
     this._photosBlob = [];
     this._isAlertOpen = false;

@@ -13,32 +13,21 @@
 <ion-alert
   [isOpen]="this.functionalStateService.isAlertOpen"
   header="{{ this.functionalStateService.labels.header }}"
-  message="{{ this.functionalStateService.labels.context }}!"
 ></ion-alert>
 
 <ion-menu side="end" contentId="main-content" id="menu-lateral">
   <div id="container-menu-lateral">
     <div id="start-menu-lateral">
-      <img src="../../assets/images/digiboardLogo.png" alt="logo"/>
+      <img src="../../assets/images/digiboardLogo.png" alt="logo" />
       <ion-button fill="solid" id="button-entry">Entrar</ion-button>
-      <ion-button fill="solid" id="button-register" (click)="irParaRegistro()">Cadastrar</ion-button>
+      <ion-button fill="solid" id="button-register" (click)="irParaRegistro()"
+        >Cadastrar</ion-button
+      >
     </div>
     <div id="end-menu-lateral">
-      <ion-button fill="solid" id="button-register" (click)="sairParaHome()">Sair</ion-button>
+      <ion-button fill="solid" id="button-register" (click)="sairParaHome()"
+        >Sair</ion-button
+      >
     </div>
   </div>
 </ion-menu>
-
-<!-- face-detection.component.html -->
-
-<!-- <div id="liveView" class="videoView">
-  <button
-    id="webcamButton"
-    class="mdc-button mdc-button--raised"
-    (click)="enableCam()"
-  >
-    <span class="mdc-button__ripple"></span>
-    <span class="mdc-button__label">HABILITAR WEBCAM</span>
-  </button>
-  <video id="webcam" autoplay playsinline></video>
-</div> -->

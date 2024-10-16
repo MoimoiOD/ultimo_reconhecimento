@@ -51,9 +51,9 @@ export class FacePositionService {
         return false
       }
     } else if (direction === 'farFront') {
-      if(faceWidth < 0.15) {
+      if(faceWidth < 0.05) {
         console.log('Rosto distante capturado!');
-        return faceWidth < 0.15;
+        return faceWidth < 0.10;
       } else {
         console.log('Rosto distante não capturado!');
         return false

@@ -10,6 +10,7 @@ export class AlertService {
 
   async alert(show: boolean) {
     if (show) {
+      console.log('Mostrando na tela o alert!')
       await this.setOpen()
       await this.delay(4000)
       await this.setClose()
@@ -26,7 +27,7 @@ export class AlertService {
   async setClose(): Promise<void> {
     return new Promise((resolve) => {
       this.functionalStateService.isAlertOpen = false;
-      this.functionalStateService.labels = { header: '', context: '' }
+      this.functionalStateService.labels = { header: '' }
       resolve()
     })
   }
