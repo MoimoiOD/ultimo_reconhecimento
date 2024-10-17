@@ -43,17 +43,18 @@ export class FacePositionService {
         return false;
       }
     } else if (direction === 'closeFront') {
-      if(faceWidth < 0.3) {
+      console.log(faceWidth)
+      if(faceWidth > 0.15 && faceWidth < 0.2) {
         console.log('Rosto próximo capturado!');
-        return faceWidth < 0.3;
+        return true;
       } else {
         console.log('Rosto próximo não capturado!');
         return false
       }
     } else if (direction === 'farFront') {
-      if(faceWidth < 0.05) {
+      if(faceWidth > 0.1 && faceWidth < 0.13) {
         console.log('Rosto distante capturado!');
-        return faceWidth < 0.10;
+        return true;
       } else {
         console.log('Rosto distante não capturado!');
         return false

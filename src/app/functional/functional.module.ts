@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { FunctionalPageRoutingModule } from './functional-routing.module';
+// import { FunctionalPageRoutingModule } from './functional-routing.module';
 
 import { FunctionalPage } from './functional.page';
 import { HttpClientModule } from '@angular/common/http';
@@ -16,14 +16,17 @@ import { CameraService } from './services/camera.service';
 import { FunctionalStateService } from './services/functional-state.service';
 import { ProcessRecognitionService } from './services/process-recognition.service';
 import { StartRecognitionService } from './services/start-recognition.service';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    FunctionalPageRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    RouterModule.forChild([
+      { path: '', component: FunctionalPage }
+    ])
   ],
   declarations: [FunctionalPage],
   providers: [

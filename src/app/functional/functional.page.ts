@@ -79,7 +79,9 @@ export class FunctionalPage implements OnInit {
     await this.startRecognitionService.initializeFaceLandmarker();
     await this.cameraService.enableCam()
     if (this.functionalStateService.modoCadastro) {
-      await this.runSequence()
+      await this.runSequence().then(() => {
+        this.runSequenceValidation()
+      })
       // await this.runSequenceValidation()
     } else {
       await this.runSequenceValidation()
@@ -87,6 +89,7 @@ export class FunctionalPage implements OnInit {
   }
 
   async ionViewWillLeave() {
+    console.log('ionViewWillLeave foi chamado');
     this.loop = false;
     this.functionalStateService.reseteState()
     await this.stopDetection();
@@ -100,37 +103,6 @@ export class FunctionalPage implements OnInit {
       await this.faceCaptureService.captureRigthFace()
       await this.alertService.alert(true)
     });
-
-    // this.queue.add(async () => {
-    //   await this.delay(6000)
-    //   await this.faceCaptureService.captureRigthFace()
-    //   await this.alertService.alert(true)
-    // });
-
-    // this.queue.add(async () => {
-    //   await this.delay(8000)
-    //   await this.faceCaptureService.captureLeftFace()
-    //   await this.alertService.alert(true)
-    // });
-    
-    // this.queue.add(async () => {
-    //   await this.delay(8000)
-    //   await this.faceCaptureService.captureCloseFrontFace()
-    //   await this.alertService.alert(true)
-    // });
-
-    // this.queue.add(async () => {
-    //   await this.delay(8000)
-    //   await this.faceCaptureService.captureFarFrontFace()
-    //   await this.alertService.alert(true)
-    // });
-    
-    // this.queue.add(async () => {
-    //   await this.delay(8000)
-    //   await this.processRecognitionService.validationMultiplePhotos()
-    //   await this.alertService.alert(true)
-    //   await this.delay(8000)
-    // });
 
     await this.queue.onIdle();
   

@@ -78,11 +78,13 @@ export class ProcessRecognitionService {
           next: (response) => {
             console.log(response)
             this.functionalStateService.isPositionFound = false;
+            this.functionalStateService.labels = { header: 'Cadastro realizado com sucesso' }
             resolve()
           },
           error: (error) => {
             console.log(error)
             this.functionalStateService.isPositionFound = false;
+            this.functionalStateService.labels = { header: 'Erro ao realizar o cadastro' }
             resolve()
           }
         })
