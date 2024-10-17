@@ -3,7 +3,6 @@ import { FunctionalStateService } from './functional-state.service';
 import { CapturePhotoService } from './capture-photo.service';
 import { PhotoService } from './photo.service';
 import { FacePositionService } from './face-position.service';
-import { FaceCaptureService } from './face-capture.service';
 
 interface teste2 {
   nome: string;
@@ -16,14 +15,11 @@ interface teste2 {
 })
 export class ProcessRecognitionService {
 
-  private faceCaptureService: FaceCaptureService;
-
   constructor(
     private functionalStateService: FunctionalStateService,
     private capturePhotoService: CapturePhotoService,
     private photoService: PhotoService,
     private facePositionService: FacePositionService) {
-    this.faceCaptureService = new FaceCaptureService(this.functionalStateService, this.facePositionService, this.capturePhotoService);
   }
 
   async predictWebcam(): Promise<void> {

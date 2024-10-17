@@ -12,6 +12,7 @@ import { CameraService } from './services/camera.service';
 import { ProcessRecognitionService } from './services/process-recognition.service';
 import { AlertService } from './services/alert.service';
 import { FaceCaptureService } from './services/face-capture.service';
+import PQueue from 'p-queue';
 
 @Component({
   selector: 'app-functional',
@@ -28,6 +29,7 @@ export class FunctionalPage implements OnInit {
   private processRecognitionService: ProcessRecognitionService;
   private alertService: AlertService
   private faceCaptureService: FaceCaptureService
+  private queue = new PQueue({ concurrency: 1 })
 
   constructor(
     private router: Router, //  Instancia o Router
@@ -42,7 +44,7 @@ export class FunctionalPage implements OnInit {
     this.cameraService = new CameraService(this.functionalStateService)
     this.processRecognitionService = new ProcessRecognitionService(this.functionalStateService, this.capturePhotoService, this.photoService, this.facePositionService)
     this.alertService = new AlertService(this.functionalStateService)
-    this.faceCaptureService = new FaceCaptureService(this.functionalStateService, this.facePositionService, this.capturePhotoService)
+    this.faceCaptureService = new FaceCaptureService(this.functionalStateService, this.facePositionService, this.capturePhotoService, this.photoService)
   }
 
   async ngOnInit() {
@@ -93,24 +95,46 @@ export class FunctionalPage implements OnInit {
   // ------------------------------- Setar informações para interface com o usuário -------------------------------
 
   async runSequence() {
-    await this.delay(6000)
-    await this.faceCaptureService.captureRigthFace()
-    await this.alertService.alert(true)
-    await this.delay(8000)
-    await this.faceCaptureService.captureLeftFace()
-    await this.alertService.alert(true)
-    await this.delay(8000)
-    await this.faceCaptureService.captureCloseFrontFace()
-    await this.alertService.alert(true)
-    await this.delay(8000)
-    await this.faceCaptureService.captureFarFrontFace()
-    await this.alertService.alert(true)
-    await this.delay(8000)
-    await this.processRecognitionService.validationMultiplePhotos()
-    await this.alertService.alert(true)
-    await this.delay(8000)
-  }
+    this.queue.add(async () => {
+      await this.delay(6000)
+      await this.faceCaptureService.captureRigthFace()
+      await this.alertService.alert(true)
+    });
 
+    // this.queue.add(async () => {
+    //   await this.delay(6000)
+    //   await this.faceCaptureService.captureRigthFace()
+    //   await this.alertService.alert(true)
+    // });
+
+    // this.queue.add(async () => {
+    //   await this.delay(8000)
+    //   await this.faceCaptureService.captureLeftFace()
+    //   await this.alertService.alert(true)
+    // });
+    
+    // this.queue.add(async () => {
+    //   await this.delay(8000)
+    //   await this.faceCaptureService.captureCloseFrontFace()
+    //   await this.alertService.alert(true)
+    // });
+
+    // this.queue.add(async () => {
+    //   await this.delay(8000)
+    //   await this.faceCaptureService.captureFarFrontFace()
+    //   await this.alertService.alert(true)
+    // });
+    
+    // this.queue.add(async () => {
+    //   await this.delay(8000)
+    //   await this.processRecognitionService.validationMultiplePhotos()
+    //   await this.alertService.alert(true)
+    //   await this.delay(8000)
+    // });
+
+    await this.queue.onIdle();
+  
+  }
 
   async runSequenceValidation() {
     while (this.loop) {

@@ -2,13 +2,27 @@ import { Injectable } from '@angular/core';
 import { FunctionalStateService } from './functional-state.service';
 import { FacePositionService } from './face-position.service';
 import { CapturePhotoService } from './capture-photo.service';
+import { AlertService } from './alert.service';
+import { ProcessRecognitionService } from './process-recognition.service';
+import { PhotoService } from './photo.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FaceCaptureService {
 
-  constructor(private functionalStateService: FunctionalStateService, private facePositionService: FacePositionService, private capturePhotoService: CapturePhotoService) { }
+  private alertService: AlertService
+  private processRecognitionService: ProcessRecognitionService
+
+  constructor(
+    private functionalStateService: FunctionalStateService,
+    private facePositionService: FacePositionService,
+    private capturePhotoService: CapturePhotoService,
+    private photoService: PhotoService
+  ) {
+    this.alertService = new AlertService(this.functionalStateService)
+    this.processRecognitionService = new ProcessRecognitionService(this.functionalStateService, this.capturePhotoService, this.photoService, this.facePositionService )
+  }
 
   async captureRigthFace(): Promise<void> {
     return new Promise((resolve) => {
@@ -16,7 +30,7 @@ export class FaceCaptureService {
 
       let lastVideoTime = -1;
       let results: any = undefined;
-  
+
       if (lastVideoTime !== this.functionalStateService.video!.currentTime) {
         lastVideoTime = this.functionalStateService.video!.currentTime;
         results = this.functionalStateService.faceLandmarker!.detectForVideo(this.functionalStateService.video!, Date.now());
@@ -30,16 +44,22 @@ export class FaceCaptureService {
             this.functionalStateService.photos.rigth.confirm = true;
             this.functionalStateService.photos.left.confirm = false;
             this.functionalStateService.labels = { header: 'Lado direito cadastrado' };
-            resolve()
+
+            this.alertService.alert(true)
+              .then(() => this.delay(4000)) // Aqui garantimos o delay
+              .then(() => this.captureLeftFace()) // Agora chamamos o próximo passo
+              .then(() => resolve()); // Resolvemos a Promise no final
             return;
           }
         }
       }
-      setTimeout(() => {
-        window.requestAnimationFrame(() => { this.captureRigthFace() })
-      }, 1000)
-      resolve()
-      return
+      if (!this.functionalStateService.photos.rigth.confirm) {
+        setTimeout(() => {
+          window.requestAnimationFrame(() => {
+            this.captureRigthFace().then(() => resolve()); // Continue a execução normalmente
+          });
+        }, 1000);
+      }
     })
   }
 
@@ -47,7 +67,7 @@ export class FaceCaptureService {
     return new Promise((resolve) => {
       let lastVideoTime = -1;
       let results: any = undefined;
-  
+
       if (lastVideoTime !== this.functionalStateService.video!.currentTime) {
         lastVideoTime = this.functionalStateService.video!.currentTime;
         results = this.functionalStateService.faceLandmarker!.detectForVideo(this.functionalStateService.video!, Date.now());
@@ -61,16 +81,21 @@ export class FaceCaptureService {
             this.functionalStateService.photos.left.confirm = true;
             this.functionalStateService.photos.close.confirm = false;
             this.functionalStateService.labels = { header: 'Lado esquerdo cadastrado' }
-            resolve()
+            this.alertService.alert(true)
+              .then(() => this.delay(4000)) // Aqui garantimos o delay
+              .then(() => this.captureCloseFrontFace()) // Agora chamamos o próximo passo
+              .then(() => resolve()); // Resolvemos a Promise no final
             return;
           }
         }
       }
-      setTimeout(() => {
-        window.requestAnimationFrame(() => { this.captureLeftFace() })
-      }, 1000)
-      resolve()
-      return
+      if (!this.functionalStateService.photos.left.confirm) {
+        setTimeout(() => {
+          window.requestAnimationFrame(() => {
+            this.captureLeftFace().then(() => resolve()); // Continue a execução normalmente
+          });
+        }, 1000);
+      }
     })
   }
 
@@ -78,7 +103,7 @@ export class FaceCaptureService {
     return new Promise((resolve) => {
       let lastVideoTime = -1;
       let results: any = undefined;
-  
+
       if (lastVideoTime !== this.functionalStateService.video!.currentTime) {
         lastVideoTime = this.functionalStateService.video!.currentTime;
         results = this.functionalStateService.faceLandmarker!.detectForVideo(this.functionalStateService.video!, Date.now());
@@ -92,16 +117,22 @@ export class FaceCaptureService {
             this.functionalStateService.photos.close.confirm = true;
             this.functionalStateService.photos.far.confirm = false;
             this.functionalStateService.labels = { header: 'Frente perto cadastrado' }
-            resolve()
+            
+            this.alertService.alert(true)
+              .then(() => this.delay(4000)) // Aqui garantimos o delay
+              .then(() => this.captureFarFrontFace()) // Agora chamamos o próximo passo
+              .then(() => resolve()); // Resolvemos a Promise no final
             return;
           }
         }
       }
-      setTimeout(() => {
-        window.requestAnimationFrame(() => { this.captureCloseFrontFace() })
-      }, 1000)
-      resolve()
-      return
+      if (!this.functionalStateService.photos.close.confirm) {
+        setTimeout(() => {
+          window.requestAnimationFrame(() => {
+            this.captureCloseFrontFace().then(() => resolve()); // Continue a execução normalmente
+          });
+        }, 1000);
+      }
     })
   }
 
@@ -109,7 +140,7 @@ export class FaceCaptureService {
     return new Promise((resolve) => {
       let lastVideoTime = -1;
       let results: any = undefined;
-  
+
       if (lastVideoTime !== this.functionalStateService.video!.currentTime) {
         lastVideoTime = this.functionalStateService.video!.currentTime;
         results = this.functionalStateService.faceLandmarker!.detectForVideo(this.functionalStateService.video!, Date.now());
@@ -123,16 +154,22 @@ export class FaceCaptureService {
             this.functionalStateService.photos.far.confirm = true;
             this.functionalStateService.labels = { header: 'Frente longe cadastrado' }
             this.functionalStateService.isPositionFound = true;
-            resolve()
-            return
+            
+            this.alertService.alert(true)
+              .then(() => this.delay(4000)) // Aqui garantimos o delay
+              .then(() => this.processRecognitionService.validationMultiplePhotos()) // Agora chamamos o próximo passo
+              .then(() => resolve()); // Resolvemos a Promise no final
+            return;
           }
         }
       }
-      setTimeout(() => {
-        window.requestAnimationFrame(() => { this.captureFarFrontFace() })
-      }, 1000)
-      resolve()
-      return
+      if (!this.functionalStateService.photos.far.confirm) {
+        setTimeout(() => {
+          window.requestAnimationFrame(() => {
+            this.captureFarFrontFace().then(() => resolve()); // Continue a execução normalmente
+          });
+        }, 1000);
+      }
     })
   }
 
