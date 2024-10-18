@@ -20,11 +20,11 @@
     <div id="start-menu-lateral">
       <img src="../../assets/images/digiboardLogo.png" alt="logo" />
       <ion-button fill="solid" id="button-entry">Entrar</ion-button>
-      <ion-button fill="solid" id="button-register" (click)="irParaRegistro()">
+      <ion-button fill="solid" id="button-register" (click)="this.routerService.irParaRegistro()">
         Cadastrar</ion-button>
     </div>
     <div id="end-menu-lateral">
-      <ion-button fill="solid" id="button-register" (click)="sairParaHome()"
+      <ion-button fill="solid" id="button-register" (click)="this.routerService.sairParaHome()"
         >Sair</ion-button>
     </div>
   </div>

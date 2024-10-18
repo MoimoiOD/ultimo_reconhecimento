@@ -14,6 +14,7 @@ import { AlertService } from './services/alert.service';
 import { FaceCaptureService } from './services/face-capture.service';
 import PQueue from 'p-queue';
 import { take } from 'rxjs';
+import { RouterService } from './services/router.service';
 
 @Component({
   selector: 'app-functional',
@@ -31,6 +32,7 @@ export class FunctionalPage implements OnInit {
   private alertService: AlertService
   private faceCaptureService: FaceCaptureService
   private registerState: StateService
+  public routerService: RouterService
   private queue = new PQueue({ concurrency: 1 })
 
   constructor(
@@ -48,6 +50,7 @@ export class FunctionalPage implements OnInit {
     this.alertService = new AlertService(this.functionalStateService)
     this.faceCaptureService = new FaceCaptureService(this.functionalStateService, this.facePositionService, this.capturePhotoService, this.photoService)
     this.registerState = new StateService()
+    this.routerService = new RouterService(router)
   }
 
   async ngOnInit() {
@@ -94,6 +97,7 @@ export class FunctionalPage implements OnInit {
   
   // Função chamada quando  o Ionic sai do componente
   async ionViewWillLeave() {
+    await this.menu.close()
     await this.functionalStateService.faceDetector?.close();
     await this.functionalStateService.faceLandmarker?.close();
     await this.queue.clear();
@@ -138,27 +142,7 @@ export class FunctionalPage implements OnInit {
     }
   }
 
-  // ------------------------------- Funções das rotas que partem do componente functional.page.ts -------------------------------
-
-
-  // Rota para cadastrar um usuário
-  irParaRegistro() {
-    this.menu.close()
-    this.router.navigate(['/register']).then(() => {
-      console.log('Navegação completa para register!')
-    })
-  }
-
-  // Rota para voltar para o home/página principal
-  sairParaHome() {
-    this.menu.close()
-    this.router.navigate(['/home']).then(() => {
-      console.log('Navegação completa para home!')
-    })
-  }
-
   // ------------------------------- Funções para parar uma detecçção e causar um atraso -------------------------------
-
 
   // Função para finalizar a detecção e desativar a câmera
   async stopDetection(): Promise<void> {
