@@ -21,6 +21,8 @@ export class RegisterPage implements OnInit {
     this.modoCadastro = true
     this.stateService.setNome(this.nomeCompleto)
     this.stateService.setModoCadastro(this.modoCadastro)
+    this.nomeCompleto = ''
+    this.modoCadastro = false
     this.router.navigate(['/functional']);
   }
 

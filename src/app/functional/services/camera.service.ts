@@ -26,12 +26,13 @@ export class CameraService {
         .then(stream => {
           this.functionalStateService.stream = stream
           this.functionalStateService.video!.srcObject = this.functionalStateService.stream;
+          resolve()
         }).catch(error => {
           console.error(`Erro ao acessar a câmera ${error}`)
+          resolve()
         });
   
       console.log('Câmera inicializada com sucesso!')
-      resolve()
     })
 
   }

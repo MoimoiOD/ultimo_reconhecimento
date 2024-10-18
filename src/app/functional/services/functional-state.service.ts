@@ -211,30 +211,35 @@ export class FunctionalStateService {
     this._textLabels = value;
   }
   
-  reseteState() {
-    this._faceDetector = null;
-    this._faceLandmarker = null; // Inicialize com um novo objeto se necessário
-    this._wasmUrl = "../assets/files";
-    this._modelAssetPath = "../assets/models/face_landmarker.task";
-    this._faceDetectorReady = false;
-    this._stream = null; // Ou um novo MediaStream se necessário
-    this._video = null; // Ou um novo elemento de vídeo se necessário
-    this._canvas = null; // Ou um novo canvas se necessário
-    this._ctx = null; // Ou um novo contexto se necessário
-    this._animationFrameId = null;
-    this._nomeCompleto = '';
-    this._modoCadastro = false;
-    this._labels = { header: '' };
-    this._isDetection = false;
-    this._photosBlob = [];
-    this._isAlertOpen = false;
-    this._isPositionFound = false;
-    this._photos = {
-      rigth: { description: 'Rosto na diagonal direita', position: 'rightDiagonal', angle: { min: 140, max: 150 }, confirm: false },
-      left: { description: 'Rosto na diagonal esquerda', position: 'leftDiagonal', angle: { min: 200, max: 210 }, confirm: true },
-      close: { description: 'Rosto de frente perto', position: 'closeFront', angle: { min: 0, max: 0 }, confirm: true },
-      far: { description: 'Rosto de frente longe', position: 'farFront', angle: { min: 0, max: 0 }, confirm: true }
-    };
+  async reseteState(): Promise<void> {
+    return new Promise((resolve) => {
+      this._faceDetector = null;
+      this._faceLandmarker = null;
+      this._wasmUrl = "../assets/files";
+      this._modelAssetPath = "../assets/models/face_landmarker.task";
+      this._faceDetectorReady = false;
+      this._stream = null;
+      this._video = null;
+      this._canvas = null;
+      this._ctx = null;
+      this._animationFrameId = null;
+      this._nomeCompleto = '';
+      this._modoCadastro = false;
+      this._labels = { header: '' };
+      this._isDetection = false;
+      this._photosBlob = [];
+      this._isAlertOpen = false;
+      this._isPositionFound = false;
+      this._photos = {
+        rigth: { description: 'Rosto na diagonal direita', position: 'rightDiagonal', angle: { min: 140, max: 150 }, confirm: false },
+        left: { description: 'Rosto na diagonal esquerda', position: 'leftDiagonal', angle: { min: 200, max: 210 }, confirm: true },
+        close: { description: 'Rosto de frente perto', position: 'closeFront', angle: { min: 0, max: 0 }, confirm: true },
+        far: { description: 'Rosto de frente longe', position: 'farFront', angle: { min: 0, max: 0 }, confirm: true }
+      };
+  
+      console.log('Todas as variáveis foram resetadas.')
+      resolve()
+    })
   }
 
 }

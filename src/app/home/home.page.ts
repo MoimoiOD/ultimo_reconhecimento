@@ -8,6 +8,8 @@ import { Router } from '@angular/router';
 })
 export class HomePage {
 
+  private teste:boolean = false
+
   constructor(private router: Router) {}
 
   async irParaValidacao() {

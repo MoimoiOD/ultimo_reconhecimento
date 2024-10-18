@@ -37,7 +37,7 @@ export class ProcessRecognitionService {
         const detections = this.functionalStateService.faceDetector!.detectForVideo(this.functionalStateService.video!, startTimeMs).detections;
         if (detections.length > 0) {
           console.log('Rosto detectado!')
-          this.functionalStateService.isDetection = true
+          this.functionalStateService.isDetection = false
         } else {
           console.log('Rosto não detectado!')
           this.functionalStateService.isDetection = false

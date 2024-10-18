@@ -10,7 +10,7 @@ export class AlertService {
 
   async alert(show: boolean) {
     if (show) {
-      console.log('Mostrando na tela o alert!')
+      console.log('Chamei o alert!')
       await this.setOpen()
       await this.delay(4000)
       await this.setClose()

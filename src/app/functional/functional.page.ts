@@ -13,6 +13,7 @@ import { ProcessRecognitionService } from './services/process-recognition.servic
 import { AlertService } from './services/alert.service';
 import { FaceCaptureService } from './services/face-capture.service';
 import PQueue from 'p-queue';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-functional',
@@ -29,6 +30,7 @@ export class FunctionalPage implements OnInit {
   private processRecognitionService: ProcessRecognitionService;
   private alertService: AlertService
   private faceCaptureService: FaceCaptureService
+  private registerState: StateService
   private queue = new PQueue({ concurrency: 1 })
 
   constructor(
@@ -40,103 +42,133 @@ export class FunctionalPage implements OnInit {
     private facePositionService: FacePositionService,
   ) {
     this.functionalStateService = new FunctionalStateService(),
-    this.startRecognitionService = new StartRecognitionService(this.functionalStateService)
+      this.startRecognitionService = new StartRecognitionService(this.functionalStateService)
     this.cameraService = new CameraService(this.functionalStateService)
     this.processRecognitionService = new ProcessRecognitionService(this.functionalStateService, this.capturePhotoService, this.photoService, this.facePositionService)
     this.alertService = new AlertService(this.functionalStateService)
     this.faceCaptureService = new FaceCaptureService(this.functionalStateService, this.facePositionService, this.capturePhotoService, this.photoService)
+    this.registerState = new StateService()
   }
 
   async ngOnInit() {
   }
 
-  async ionViewWillEnter() { //  Inicia a detecção de face quando a página é carregada
+  // ------------------------------- Funções que são chamadas quando o Ionic entra e sai no componente functional.page.ts -----------------------------------
+
+  // Função chamada quando o Ionic inicia o componente
+  async ionViewWillEnter() { 
+    this.functionalStateService.isDetection = false
     this.loop = true
     this.functionalStateService.video = document.getElementById("webcam") as HTMLVideoElement; //  Pega o elemento do vídeo
-    console.log('Tag vídeo capturado.')
     this.functionalStateService.canvas = document.createElement('canvas') as HTMLCanvasElement; //   Cria o elemento do canvas
-    console.log('Tag canvas criado e capturado.')
     this.functionalStateService.ctx = this.functionalStateService.canvas.getContext('2d')
-
-    if (this.functionalStateService.ctx) {
-      console.log('Contexto do canvas capturado');
-    } else {
-      console.error('Erro ao capturar o contexto do canvas.');
-    }
-    console.log('Contexto do canvas capturado')
-    this.stateService.nome$.subscribe(nomeCompleto => {
+    
+    this.stateService.nome$.pipe(take(1)).subscribe(nomeCompleto => {
       this.functionalStateService.nomeCompleto = nomeCompleto
       console.log(`Nome completo do registro: ${this.functionalStateService.nomeCompleto}`)
     })
-    this.stateService.modoCadastro$.subscribe(modoCadastro => {
+    this.stateService.modoCadastro$.pipe(take(1)).subscribe(modoCadastro => {
       this.functionalStateService.modoCadastro = modoCadastro
       console.log(`Modo de cadastro: ${this.functionalStateService.modoCadastro}`)
     })
 
-    console.log('Configurações Iniciais Finalizadas!')
-
+    this.stateService.resetState()
+    
     await this.startRecognitionService.initializeFaceDetector();
     await this.startRecognitionService.initializeFaceLandmarker();
-    await this.cameraService.enableCam()
+    if (!this.functionalStateService.video!.srcObject) {
+      await this.cameraService.enableCam()
+    }
     if (this.functionalStateService.modoCadastro) {
+      await this.delay(1000);
       await this.runSequence().then(() => {
+        this.functionalStateService.isDetection = false
         this.runSequenceValidation()
       })
       // await this.runSequenceValidation()
     } else {
+      await this.delay(1000)
       await this.runSequenceValidation()
     }
   }
-
+  
+  // Função chamada quando  o Ionic sai do componente
   async ionViewWillLeave() {
-    console.log('ionViewWillLeave foi chamado');
-    this.loop = false;
-    this.functionalStateService.reseteState()
+    await this.functionalStateService.faceDetector?.close();
+    await this.functionalStateService.faceLandmarker?.close();
+    await this.queue.clear();
     await this.stopDetection();
+    await this.functionalStateService.reseteState()
   }
 
-  // ------------------------------- Setar informações para interface com o usuário -------------------------------
+  // ------------------------------- Funções que definem a sequencia de passos para validar e para registrar um usuário -------------------------------
 
+  // Sequencia para registrar um usuário
   async runSequence() {
     this.queue.add(async () => {
       await this.delay(6000)
       await this.faceCaptureService.captureRigthFace()
       await this.alertService.alert(true)
+      await this.queue.clear()
     });
-
+    
     await this.queue.onIdle();
-  
+
   }
 
+  // Sequencia para validar um usuário
   async runSequenceValidation() {
-    while (this.loop) {
-      await this.delay(1000);
-      if (!this.loop) break;
-      await this.processRecognitionService.predictWebcam()
-      if (!this.loop) break;
-      await this.processRecognitionService.validation()
-      if (!this.loop) break;
-      await this.alertService.alert(true)
-      if (!this.loop) break;
-      console.log('Todos os métodos concluídos. Reiniciando a sequência...\n')
-      await this.delay(4000)
+    if (this.functionalStateService.isDetection) {
+      // console.log('Detecção está desativada. Parando a sequência.');
+      return;
+    }
+    await this.processRecognitionService.predictWebcam()
+    if (this.functionalStateService.isDetection) return;  
+    await this.processRecognitionService.validation()
+    if (this.functionalStateService.isDetection) return;  
+    await this.alertService.alert(true)
+    if (this.functionalStateService.isDetection) return;  
+    console.log('Todos os métodos concluídos. Reiniciando a sequência...\n')
+    // await this.delay(4000)
+    if (!this.functionalStateService.isAlertOpen) {
+      if (this.functionalStateService.isDetection) return;  
+      await this.delay(1000)
+      if (this.functionalStateService.isDetection) return;  
+      this.functionalStateService.animationFrameId = window.requestAnimationFrame(() => this.runSequenceValidation())
     }
   }
 
+  // ------------------------------- Funções das rotas que partem do componente functional.page.ts -------------------------------
+
+
+  // Rota para cadastrar um usuário
   irParaRegistro() {
     this.menu.close()
-    this.router.navigate(['/register'])
+    this.router.navigate(['/register']).then(() => {
+      console.log('Navegação completa para register!')
+    })
   }
 
+  // Rota para voltar para o home/página principal
   sairParaHome() {
-    this.router.navigate(['/home'])
+    this.menu.close()
+    this.router.navigate(['/home']).then(() => {
+      console.log('Navegação completa para home!')
+    })
   }
 
+  // ------------------------------- Funções para parar uma detecçção e causar um atraso -------------------------------
+
+
+  // Função para finalizar a detecção e desativar a câmera
   async stopDetection(): Promise<void> {
     return new Promise((resolve) => {
-      this.functionalStateService.isDetection = false
+      console.log('Stop Detection foi chamado!')
+      this.loop = false;
+      this.functionalStateService.isDetection = true
       this.cameraService.disableCam();
       if (this.functionalStateService.animationFrameId) {
+        console.log('Entrei na condição do Stop Detection!')
         cancelAnimationFrame(this.functionalStateService.animationFrameId!)
         this.functionalStateService.animationFrameId = null
       }
@@ -144,8 +176,8 @@ export class FunctionalPage implements OnInit {
     })
   }
 
+  // Função para causar um atraso entre as etapas
   delay(ms: number): Promise<void> {
-    console.log('Delay da functional.page.ts')
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 

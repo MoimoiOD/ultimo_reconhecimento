@@ -17,6 +17,7 @@ import { FunctionalStateService } from './services/functional-state.service';
 import { ProcessRecognitionService } from './services/process-recognition.service';
 import { StartRecognitionService } from './services/start-recognition.service';
 import { RouterModule } from '@angular/router';
+import { RegisterPageModule } from '../register/register.module';
 
 @NgModule({
   imports: [
@@ -26,7 +27,7 @@ import { RouterModule } from '@angular/router';
     HttpClientModule,
     RouterModule.forChild([
       { path: '', component: FunctionalPage }
-    ])
+    ]),
   ],
   declarations: [FunctionalPage],
   providers: [
