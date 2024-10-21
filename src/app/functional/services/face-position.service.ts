@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FunctionalStateService } from './functional-state.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +8,7 @@ export class FacePositionService {
 
   constructor() { }
 
-  identifyFacePosition(landmarks: any, direction: string, angleRange: { min: number, max: number }): boolean {
+  identifyFacePosition(landmarks: any, direction: string, angleRange: { min: number, max: number }, functionalStateService: FunctionalStateService): boolean {
     const leftEye = landmarks[263];  
     const rightEye = landmarks[33];  
 
@@ -31,6 +32,12 @@ export class FacePositionService {
       if (angleInDegrees >= angleRange.min && angleInDegrees <= angleRange.max) {
         console.log(`Inclinação correta para a direita! Dentro do range: ${angleRange.min}° a ${angleRange.max}°`);
         return true;
+      } else if(!(angleInDegrees >= angleRange.min && angleInDegrees <= angleRange.max) &&  angleInDegrees < angleRange.min) {
+        functionalStateService.textLabels.text = 'Volte mais para a esquerda'
+        return false
+      } else if(!(angleInDegrees >= angleRange.min && angleInDegrees <= angleRange.max) && angleInDegrees > angleRange.max) {
+        functionalStateService.textLabels.text = 'Vire mais para a direita'
+        return false
       } else {
         console.log(`Inclinação incorreta para a direita! Dentro do range: ${angleRange.min}° a ${angleRange.max}°`);
         return false;
@@ -39,7 +46,14 @@ export class FacePositionService {
       if (angleInDegrees >= angleRange.min && angleInDegrees <= angleRange.max) {
         console.log(`Inclinação correta para a esquerda! Dentro do range: ${angleRange.min}° a ${angleRange.max}°`);
         return true;
+      } else if(!(angleInDegrees >= angleRange.min && angleInDegrees <= angleRange.max) &&  angleInDegrees < angleRange.min) {
+        functionalStateService.textLabels.text = 'Vire mais para a esquerda'
+        return false
+      } else if(!(angleInDegrees >= angleRange.min && angleInDegrees <= angleRange.max) && angleInDegrees > angleRange.max) {
+        functionalStateService.textLabels.text = 'Volte mais para a direita'
+        return false
       } else {
+        console.log(`Inclinação incorreta para a esquerda! Dentro do range: ${angleRange.min}° a ${angleRange.max}°`);
         return false;
       }
     } else if (direction === 'closeFront') {
@@ -47,6 +61,12 @@ export class FacePositionService {
       if(faceWidth > 0.15 && faceWidth < 0.2) {
         console.log('Rosto próximo capturado!');
         return true;
+      } else if(!(faceWidth > 0.18 && faceWidth < 0.2) && faceWidth < 0.18) {
+        functionalStateService.textLabels.text = 'Aproxime mais o rosto';
+        return false
+      } else if(!(faceWidth > 0.18 && faceWidth < 0.2) && faceWidth > 0.2) {
+        functionalStateService.textLabels.text = 'Afaste mais o rosto';
+        return false
       } else {
         console.log('Rosto próximo não capturado!');
         return false
@@ -55,6 +75,12 @@ export class FacePositionService {
       if(faceWidth > 0.1 && faceWidth < 0.13) {
         console.log('Rosto distante capturado!');
         return true;
+      } else if(!(faceWidth > 0.1 && faceWidth < 0.12) && faceWidth < 0.1) {
+        functionalStateService.textLabels.text = 'Aproxime mais o rosto';
+        return false
+      } else if(!(faceWidth > 0.1 && faceWidth < 0.12) && faceWidth > 0.12) {
+        functionalStateService.textLabels.text = 'Afaste mais o rosto';
+        return false
       } else {
         console.log('Rosto distante não capturado!');
         return false

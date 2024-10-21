@@ -6,7 +6,7 @@
     <div id="liveView" class="videoView">
       <video id="webcam" autoplay playsinline></video>
     </div>
-    <p id="message">APROXIME SEU ROSTO</p>
+    <p id="message">{{this.functionalStateService.textLabels.text}}</p>
   </div>
 </ion-content>
 
@@ -20,12 +20,10 @@
     <div id="start-menu-lateral">
       <img src="../../assets/images/digiboardLogo.png" alt="logo" />
       <ion-button fill="solid" id="button-entry">Entrar</ion-button>
-      <ion-button fill="solid" id="button-register" (click)="this.routerService.irParaRegistro()">
-        Cadastrar</ion-button>
+      <ion-button fill="solid" id="button-register" (click)="this.routerService.irParaRegistro()">Cadastrar</ion-button>
     </div>
     <div id="end-menu-lateral">
-      <ion-button fill="solid" id="button-register" (click)="this.routerService.sairParaHome()"
-        >Sair</ion-button>
+      <ion-button fill="solid" id="button-register" (click)="this.routerService.sairParaHome()">Sair</ion-button>
     </div>
   </div>
 </ion-menu>

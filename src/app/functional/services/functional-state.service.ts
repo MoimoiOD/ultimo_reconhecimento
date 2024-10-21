@@ -30,13 +30,7 @@ export class FunctionalStateService {
     far: { description: 'Rosto de frente longe', position: 'farFront', angle: { min: 0, max: 0 }, confirm: true }
   }
   private _textLabels = {
-    standard: `Reconhecimento Facil`,
-    entryReleased: `Entrada Liberada`,
-    entryDenied: `Entrada Negada`,
-    approachRigthFace: [`Vire o rosto para a direita`, `Mais para a direita`, `Um pouco mais para a direita`],
-    approachLeftFace:  [`Vire o rosto para a esquerda`, `Mais para a esquerda`,  `Um pouco mais para a esquerda`],
-    approachCloseFace:  [`Aproxime seu rosto`, `Um pouco mais perto`],
-    approachFarFace:  [`Afaste seu rosto`, `Um pouco mais longe`]
+    text: 'Reconhecimento Facial'
   }
 
   constructor() { }
@@ -207,7 +201,7 @@ export class FunctionalStateService {
     return this._textLabels;
   }
 
-  set textLabels(value: { standard: any, entryReleased: any, entryDenied: any, approachRigthFace: any,  approachLeftFace: any, approachCloseFace: any, approachFarFace: any }) {
+  set textLabels(value: { text:string }) {
     this._textLabels = value;
   }
   
@@ -236,6 +230,7 @@ export class FunctionalStateService {
         close: { description: 'Rosto de frente perto', position: 'closeFront', angle: { min: 0, max: 0 }, confirm: true },
         far: { description: 'Rosto de frente longe', position: 'farFront', angle: { min: 0, max: 0 }, confirm: true }
       };
+      this._textLabels = { text: 'Reconhecimento Facial' }
   
       console.log('Todas as variáveis foram resetadas.')
       resolve()

@@ -37,7 +37,7 @@ export class FaceCaptureService {
       }
       if (results && results.faceLandmarks) {
         for (const landmarks of results.faceLandmarks) {
-          if (!this.functionalStateService.photos.rigth.confirm && this.facePositionService!.identifyFacePosition(landmarks, this.functionalStateService.photos.rigth.position, this.functionalStateService.photos.rigth.angle)) {
+          if (!this.functionalStateService.photos.rigth.confirm && this.facePositionService!.identifyFacePosition(landmarks, this.functionalStateService.photos.rigth.position, this.functionalStateService.photos.rigth.angle, this.functionalStateService)) {
             console.log('Capturando  foto do lado direito!');
             const photoBlob = this.capturePhotoService.capturePhoto(this.functionalStateService.canvas!, this.functionalStateService.video!, this.functionalStateService.ctx!)
             this.functionalStateService.photosBlob.push(photoBlob);
@@ -74,7 +74,7 @@ export class FaceCaptureService {
       }
       if (results && results.faceLandmarks) {
         for (const landmarks of results.faceLandmarks) {
-          if (!this.functionalStateService.photos.left.confirm && this.facePositionService.identifyFacePosition(landmarks, this.functionalStateService.photos.left.position, this.functionalStateService.photos.left.angle)) {
+          if (!this.functionalStateService.photos.left.confirm && this.facePositionService.identifyFacePosition(landmarks, this.functionalStateService.photos.left.position, this.functionalStateService.photos.left.angle, this.functionalStateService)) {
             console.log('Capturando  foto do lado esquerdo!');
             const photoBlob = this.capturePhotoService.capturePhoto(this.functionalStateService.canvas!, this.functionalStateService.video!, this.functionalStateService.ctx!)
             this.functionalStateService.photosBlob.push(photoBlob)
@@ -110,7 +110,7 @@ export class FaceCaptureService {
       }
       if (results && results.faceLandmarks) {
         for (const landmarks of results.faceLandmarks) {
-          if (!this.functionalStateService.photos.close.confirm && this.facePositionService.identifyFacePosition(landmarks, this.functionalStateService.photos.close.position, this.functionalStateService.photos.close.angle)) {
+          if (!this.functionalStateService.photos.close.confirm && this.facePositionService.identifyFacePosition(landmarks, this.functionalStateService.photos.close.position, this.functionalStateService.photos.close.angle, this.functionalStateService)) {
             console.log('Capturando foto de frente perto!');
             const photoBlob = this.capturePhotoService.capturePhoto(this.functionalStateService.canvas!, this.functionalStateService.video!, this.functionalStateService.ctx!)
             this.functionalStateService.photosBlob.push(photoBlob)
@@ -147,7 +147,7 @@ export class FaceCaptureService {
       }
       if (results && results.faceLandmarks) {
         for (const landmarks of results.faceLandmarks) {
-          if (!this.functionalStateService.photos.far.confirm && this.facePositionService.identifyFacePosition(landmarks, this.functionalStateService.photos.far.position, this.functionalStateService.photos.far.angle)) {
+          if (!this.functionalStateService.photos.far.confirm && this.facePositionService.identifyFacePosition(landmarks, this.functionalStateService.photos.far.position, this.functionalStateService.photos.far.angle, this.functionalStateService)) {
             console.log('Capturando foto de frente perto!');
             const photoBlob = this.capturePhotoService.capturePhoto(this.functionalStateService.canvas!, this.functionalStateService.video!, this.functionalStateService.ctx!)
             this.functionalStateService.photosBlob.push(photoBlob)
