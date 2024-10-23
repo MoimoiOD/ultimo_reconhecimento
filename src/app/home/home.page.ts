@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { RotaLocalHomeService } from './service/rota-local-home.service';
 
 @Component({
   selector: 'app-home',
@@ -8,12 +9,10 @@ import { Router } from '@angular/router';
 })
 export class HomePage {
 
-  private teste:boolean = false
+  public rotaLocalHomeService:RotaLocalHomeService
 
-  constructor(private router: Router) {}
-
-  async irParaValidacao() {
-    this.router.navigate(['/functional'])
+  constructor(private router: Router) {
+    this.rotaLocalHomeService = new RotaLocalHomeService(router)
   }
 
 }

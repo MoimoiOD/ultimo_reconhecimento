@@ -1,6 +1,6 @@
 // photo.service.ts
 import { Injectable } from '@angular/core';
-import { from, Observable } from 'rxjs';
+import { from, Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
 
 interface teste {
@@ -29,10 +29,23 @@ export class PhotoService {
     formData.append('file', photo, 'photo.png');
 
     return from(fetch(this.apiUrl, { method: 'POST', body: formData }).then(async (response: Response) => {
+      if(!response.ok) {
+        const errorBody = await response.json()
+        throw errorBody;
+      }
       const body: teste = await response.json()
-      const bodyObject = { nome: body.data![0].nome, match: body.data![0].match } 
-      return bodyObject
-    }))
+      if(Object.keys(body.data![0]).length === 0) {
+        const bodyObject = { nome: '', match: false, detail: body.detail }
+        return bodyObject
+      } else {
+        const bodyObject = { nome: body.data![0].nome, match: body.data![0].match } 
+        return bodyObject
+      }
+    }).catch(async error => {
+      console.log('Erro ao enviar foto:', error);
+      return { nome: '', match: false, detail: error.detail || 'Erro desconhecido' };
+    })
+  )
   }
 
   registerFace(nome: string, photos: Blob[]): Observable<any> {

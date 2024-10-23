@@ -59,36 +59,37 @@ export class FacePositionService {
       }
     } else if (direction === 'closeFront') {
       console.log(faceWidth)
-      if(faceWidth > 0.12 && faceWidth < 0.17) {
+      if(faceWidth > 0.2 && faceWidth < 0.23) {
         console.log('Rosto próximo capturado!');
         return true;
-      } else if(!(faceWidth > 0.12 && faceWidth < 0.17) && faceWidth < 0.12) {
+      } else if(!(faceWidth > 0.2 && faceWidth < 0.23) && faceWidth < 0.2) {
         functionalStateService.textLabels.text = 'Aproxime mais o rosto';
         return false
-      } else if(!(faceWidth > 0.12 && faceWidth < 0.17) && faceWidth > 0.17) {
+      } else if(!(faceWidth > 0.2 && faceWidth < 0.23) && faceWidth > 0.23) {
         functionalStateService.textLabels.text = 'Afaste mais o rosto';
         return false
       } else {
         console.log('Rosto próximo não capturado!');
+        console.log('Rosto distante não capturado! Distância: ' + faceWidth);
         return false
       }
     } else if (direction === 'farFront') {
-      if(faceWidth > 0.07 && faceWidth < 0.1) {
+      if(faceWidth > 0.15 && faceWidth < 0.18) {
         console.log('Rosto distante capturado!');
         return true;
-      } else if(!(faceWidth > 0.07 && faceWidth < 0.1) && faceWidth < 0.07) {
+      } else if(!(faceWidth > 0.15 && faceWidth < 0.18) && faceWidth < 0.15) {
         functionalStateService.textLabels.text = 'Aproxime mais o rosto';
         return false
-      } else if(!(faceWidth > 0.07 && faceWidth < 0.1) && faceWidth > 0.1) {
+      } else if(!(faceWidth > 0.15 && faceWidth < 0.18) && faceWidth > 0.18) {
         functionalStateService.textLabels.text = 'Afaste mais o rosto';
         return false
       } else {
-        console.log('Rosto distante não capturado!');
+        console.log('Rosto distante não capturado! Distância: ' + faceWidth);
         return false
       }
     }
     console.log('Posição indefinida!')
     return false;
   }
-
+  
 }

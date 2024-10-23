@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { BootstrapOptions, Injectable } from '@angular/core';
 import { FaceDetector, FaceLandmarker } from '@mediapipe/tasks-vision';
 
 @Injectable({
@@ -23,6 +23,7 @@ export class FunctionalStateService {
   private _photosBlob: Blob[] = [];
   private _isAlertOpen: boolean = false;  // Abre a janela de alerta
   private _isPositionFound: boolean = false;
+  private _isFace: boolean = false;
   private _photos = {
     rigth: { description: 'Rosto na diagonal direita', position: 'rightDiagonal', angle: { min: 140, max: 150 }, confirm: false },
     left: { description: 'Rosto na diagonal esquerda', position: 'leftDiagonal', angle: { min: 200, max: 210 }, confirm: true },
@@ -186,6 +187,14 @@ export class FunctionalStateService {
 
   set isPositionFound(value: boolean) {
     this._isPositionFound = value;
+  }
+  
+  get isFace(): boolean {
+    return this._isFace;
+  }
+
+  set isFace(value: boolean) {
+    this._isFace = value;
   }
 
   // Getters e Setters para photos

@@ -131,7 +131,9 @@ export class FunctionalPage implements OnInit {
     if (this.functionalStateService.isDetection) return;  
     await this.processRecognitionService.validation()
     if (this.functionalStateService.isDetection) return;  
-    await this.alertService.alert(true)
+    if(this.functionalStateService.isFace) {
+      await this.alertService.alert(true)
+    }
     if (this.functionalStateService.isDetection) return;  
     console.log('Todos os métodos concluídos. Reiniciando a sequência...\n')
     // await this.delay(4000)

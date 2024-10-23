@@ -7,7 +7,6 @@ import { FacePositionService } from './face-position.service';
 interface teste2 {
   nome: string;
   match: boolean;
-
 }
 
 @Injectable({
@@ -31,25 +30,25 @@ export class ProcessRecognitionService {
     return new Promise((resolve) => {
       let startTimeMs = performance.now();
 
-      console.log(this.functionalStateService.video!.videoWidth)
-      console.log(this.functionalStateService.video!.videoHeight)
       if (this.functionalStateService.video!.videoWidth && this.functionalStateService.video!.videoHeight) {
         const detections = this.functionalStateService.faceDetector!.detectForVideo(this.functionalStateService.video!, startTimeMs).detections;
         if (detections.length > 0) {
           console.log('Rosto detectado!')
           this.functionalStateService.isDetection = false
+          this.functionalStateService.isFace = true
         } else {
           console.log('Rosto não detectado!')
           this.functionalStateService.isDetection = false
+          this.functionalStateService.isFace = false
         }
         resolve()
       }
     })
   }
-
+  
   async validation(): Promise<void> {
     console.log(`Iniciando o processo de validação/autenticação!`)
-
+    
     return new Promise((resolve) => {
       const photoBlob = this.capturePhotoService.capturePhoto(this.functionalStateService.canvas!, this.functionalStateService.video!, this.functionalStateService.ctx!)
       this.photoService.sendPhoto(photoBlob).subscribe({
@@ -63,9 +62,9 @@ export class ProcessRecognitionService {
           }
         },
         error: (error) => {
-          this.functionalStateService.labels = { header: `Erro na API` }
-          console.log('Erro ao enviar a foto para API:', error);
-          resolve()
+          this.functionalStateService.labels = { header: `Erro: ${error.detail || 'Erro na comunicação'}` };
+        console.log('Erro ao enviar a foto para API:', error); // `error` agora contém o corpo do JSON retornado pela API
+        resolve();
         }
       });
     })
