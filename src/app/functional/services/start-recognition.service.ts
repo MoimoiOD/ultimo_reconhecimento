@@ -9,17 +9,18 @@ export class StartRecognitionService {
 
   wasmUrl: string = "../assets/files";
   modelAssetPath: string = "../assets/models/face_landmarker.task";
+  modelAssetPathDetector: string = "../assets/models/blaze_face_short_range.tflite";
 
   constructor(private functionalStateService: FunctionalStateService) { }
 
   async initializeFaceDetector(): Promise<void> {
     const vision = await FilesetResolver.forVisionTasks(
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+      this.wasmUrl
     );
     console.log('Arquivos resolvidos do FaceDetector!')
     this.functionalStateService.faceDetector = await FaceDetector.createFromOptions(vision, {
       baseOptions: {
-        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
+        modelAssetPath: this.modelAssetPathDetector,
         delegate: "GPU"
       },
       runningMode: 'VIDEO'

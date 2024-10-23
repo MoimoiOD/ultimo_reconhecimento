@@ -1,5 +1,5 @@
 // face-detection.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { PhotoService } from './services/photo.service';
@@ -23,12 +23,12 @@ import { RouterService } from './services/router.service';
 })
 export class FunctionalPage implements OnInit {
 
-  private loop: boolean = true;
+  private loop: boolean = true
 
-  public functionalStateService: FunctionalStateService;
-  private startRecognitionService: StartRecognitionService;
-  private cameraService: CameraService;
-  private processRecognitionService: ProcessRecognitionService;
+  public functionalStateService: FunctionalStateService
+  private startRecognitionService: StartRecognitionService
+  private cameraService: CameraService
+  private processRecognitionService: ProcessRecognitionService
   private alertService: AlertService
   private faceCaptureService: FaceCaptureService
   private registerState: StateService
@@ -110,6 +110,7 @@ export class FunctionalPage implements OnInit {
   // Sequencia para registrar um usuário
   async runSequence() {
     this.queue.add(async () => {
+      this.functionalStateService.textLabels.text = 'Iniciando captura da face esquerda'
       await this.delay(6000)
       await this.faceCaptureService.captureRigthFace()
       await this.alertService.alert(true)

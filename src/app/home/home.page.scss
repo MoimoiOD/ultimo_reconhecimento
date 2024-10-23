@@ -29,9 +29,11 @@ ion-button {
 }
 
 .button-entry {
-  --color: rgba(142, 142, 142, 1);
-  --border-color: rgba(142, 142, 142, 1);
-  --border-width: 2px;
+  --background: rgba(0, 0, 0, 1);
+  color:white
+  // --color: rgba(142, 142, 142, 1);
+  // --border-color: rgba(142, 142, 142, 1);
+  // --border-width: 2px;
 }
 
 .button-register {

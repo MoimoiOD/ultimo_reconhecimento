@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  apiUrlReconhecimento: 'http://192.168.56.1:8000/face/reconhecimento_facial',
+  apiUrlCadastro: 'http://192.168.56.1:8000/face/cadastro'
 };
 
 /*

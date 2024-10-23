@@ -36,15 +36,8 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 // @import "@ionic/angular/css/palettes/dark.system.css";
 
-ion-alert .alert-head {
+ion-alert.custom-alert {
   font-family: SF-Pro-Display-Medium;
-  font-size: 20px;
-  letter-spacing: 1px;
-}
-
-@font-face {
-  font-family: SF-Pro-Display-Bold;
-  src: url(./assets/fonts/SFPRODISPLAYBOLD.OTF);
 }
 
 @font-face {

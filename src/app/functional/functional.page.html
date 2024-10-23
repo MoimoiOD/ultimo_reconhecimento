@@ -11,8 +11,9 @@
 </ion-content>
 
 <ion-alert
-  [isOpen]="this.functionalStateService.isAlertOpen"
+  cssClass="header-style"
   header="{{ this.functionalStateService.labels.header }}"
+  [isOpen]="this.functionalStateService.isAlertOpen"
 ></ion-alert>
 
 <ion-menu side="end" contentId="main-content" id="menu-lateral">
@@ -20,10 +21,20 @@
     <div id="start-menu-lateral">
       <img src="../../assets/images/digiboardLogo.png" alt="logo" />
       <ion-button fill="solid" id="button-entry">Entrar</ion-button>
-      <ion-button fill="solid" id="button-register" (click)="this.routerService.irParaRegistro()">Cadastrar</ion-button>
+      <ion-button
+        fill="solid"
+        id="button-register"
+        (click)="this.routerService.irParaRegistro()"
+        >Cadastrar</ion-button
+      >
     </div>
     <div id="end-menu-lateral">
-      <ion-button fill="solid" id="button-register" (click)="this.routerService.sairParaHome()">Sair</ion-button>
+      <ion-button
+        fill="solid"
+        id="button-register"
+        (click)="this.routerService.sairParaHome()"
+        >Sair</ion-button
+      >
     </div>
   </div>
 </ion-menu>

@@ -1,18 +1,17 @@
 // photo.service.ts
 import { Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
+import { environment } from 'src/environments/environment.prod';
 
 interface teste {
-  status_code: string;
+  status_code: number;
   detail: string;
-  data: {
-    detail: {
-      0: {
-        nome: string,
-        match: string
-      }
-    }
-  };
+  data: [{
+    nome:string,
+    match:boolean,
+    similaridade:number,
+    limite:number
+  }] | null;
   error: any;
 }
 
@@ -20,8 +19,8 @@ interface teste {
   providedIn: 'root'
 })
 export class PhotoService {
-    private apiUrl = 'http://147.1.6.53:8000/face/reconhecimento_facial';// Substitua pelo seu endpoint
-    private apiUrlCadastro = 'http://147.1.6.53:8000/face/cadastro'
+    private apiUrl = environment.api + '/face/reconhecimento_facial';// Substitua pelo seu endpoint
+    private apiUrlCadastro = environment.api + '/face/cadastro'
 
   constructor() {}
 
@@ -31,7 +30,7 @@ export class PhotoService {
 
     return from(fetch(this.apiUrl, { method: 'POST', body: formData }).then(async (response: Response) => {
       const body: teste = await response.json()
-      const bodyObject = { nome: body.data.detail[0].nome, match: body.data.detail[0].match } 
+      const bodyObject = { nome: body.data![0].nome, match: body.data![0].match } 
       return bodyObject
     }))
   }
@@ -46,5 +45,7 @@ export class PhotoService {
       console.log(response.json())
     }))
   }
+
+  
 
 }

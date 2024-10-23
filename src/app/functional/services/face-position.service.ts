@@ -31,6 +31,7 @@ export class FacePositionService {
     if (direction === 'rightDiagonal') {
       if (angleInDegrees >= angleRange.min && angleInDegrees <= angleRange.max) {
         console.log(`Inclinação correta para a direita! Dentro do range: ${angleRange.min}° a ${angleRange.max}°`);
+        functionalStateService.textLabels.text = 'Aguente firme!'
         return true;
       } else if(!(angleInDegrees >= angleRange.min && angleInDegrees <= angleRange.max) &&  angleInDegrees < angleRange.min) {
         functionalStateService.textLabels.text = 'Volte mais para a esquerda'
@@ -58,13 +59,13 @@ export class FacePositionService {
       }
     } else if (direction === 'closeFront') {
       console.log(faceWidth)
-      if(faceWidth > 0.15 && faceWidth < 0.2) {
+      if(faceWidth > 0.12 && faceWidth < 0.17) {
         console.log('Rosto próximo capturado!');
         return true;
-      } else if(!(faceWidth > 0.18 && faceWidth < 0.2) && faceWidth < 0.18) {
+      } else if(!(faceWidth > 0.12 && faceWidth < 0.17) && faceWidth < 0.12) {
         functionalStateService.textLabels.text = 'Aproxime mais o rosto';
         return false
-      } else if(!(faceWidth > 0.18 && faceWidth < 0.2) && faceWidth > 0.2) {
+      } else if(!(faceWidth > 0.12 && faceWidth < 0.17) && faceWidth > 0.17) {
         functionalStateService.textLabels.text = 'Afaste mais o rosto';
         return false
       } else {
@@ -72,13 +73,13 @@ export class FacePositionService {
         return false
       }
     } else if (direction === 'farFront') {
-      if(faceWidth > 0.1 && faceWidth < 0.13) {
+      if(faceWidth > 0.07 && faceWidth < 0.1) {
         console.log('Rosto distante capturado!');
         return true;
-      } else if(!(faceWidth > 0.1 && faceWidth < 0.12) && faceWidth < 0.1) {
+      } else if(!(faceWidth > 0.07 && faceWidth < 0.1) && faceWidth < 0.07) {
         functionalStateService.textLabels.text = 'Aproxime mais o rosto';
         return false
-      } else if(!(faceWidth > 0.1 && faceWidth < 0.12) && faceWidth > 0.12) {
+      } else if(!(faceWidth > 0.07 && faceWidth < 0.1) && faceWidth > 0.1) {
         functionalStateService.textLabels.text = 'Afaste mais o rosto';
         return false
       } else {
